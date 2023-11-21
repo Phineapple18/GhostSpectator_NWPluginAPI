@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+using HarmonyLib;
+using NorthwoodLib.Pools;
+using PlayerRoles.PlayableScps.Scp049;
+using PluginAPI.Core;
+using UnityEngine;
+using PlayerRoles;
+
+namespace GhostSpectator.Patches
+{
+	[HarmonyPatch(typeof(Scp049ResurrectAbility), nameof(Scp049ResurrectAbility.ServerValidateAny))]
+    internal class Scp049ResurrectPatch
+	{
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
+
+            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(PlayerRoleManager), "CurrentRole"));
+            
+            newInstructions.RemoveRange(index - 1, 3);
+            newInstructions.Insert(index - 1, new (OpCodes.Call, AccessTools.Method(typeof(Scp049ResurrectPatch), nameof(IsDead), new Type[] { typeof(ReferenceHub) })));
+
+            for (int i = 0; i < newInstructions.Count; i++)
+            {
+                yield return newInstructions[i];
+            }
+
+            ListPool<CodeInstruction>.Shared.Return(newInstructions);
+        }
+
+        private static bool IsDead(ReferenceHub hub)
+        {
+            Player player = Player.Get(hub);
+            return player != null && (player.Role == RoleTypeId.Spectator || player.TemporaryData.Contains("IsGhostSpectator"));
+        }
+    }
+
+    [HarmonyPatch(typeof(Scp049ResurrectAbility), nameof(Scp049ResurrectAbility.ServerComplete))]
+    internal class ZombiePositionPatch
+    {
+        internal static void Postfix(Scp049ResurrectAbility __instance)
+        {
+            __instance.CurRagdoll.Info.OwnerHub.transform.position = __instance.CurRagdoll.CenterPoint.position + new Vector3(0, 1.2f, 0);
+        }
+    }
+}
