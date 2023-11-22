@@ -1,5 +1,5 @@
 # GhostSpectator_NWAPI
-Plugin, that lets players change into Ghosts: Tutorials, that are undetectable to alive player and have no influence on course of game. Ghosts can teleport to random alive player by droping item declared in Config (Lantern by default).
+Plugin, that lets players change into Ghosts: Tutorials, that are undetectable to alive player and have no influence on course of game. Ghosts can teleport to random alive player by dropping item declared in Config (Lantern by default).
 - Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on Config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items and interact with objects.
 - Ghosts can pass through most of the doors.
