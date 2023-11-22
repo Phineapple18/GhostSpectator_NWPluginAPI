@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 
 using HarmonyLib;
 using NorthwoodLib.Pools;
+using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp049;
+using PlayerRoles.Spectating;
 using PluginAPI.Core;
 using UnityEngine;
-using PlayerRoles;
 
 namespace GhostSpectator.Patches
 {
@@ -38,7 +39,7 @@ namespace GhostSpectator.Patches
         private static bool IsDead(ReferenceHub hub)
         {
             Player player = Player.Get(hub);
-            return player != null && (player.Role == RoleTypeId.Spectator || player.TemporaryData.Contains("IsGhostSpectator"));
+            return player.RoleBase is SpectatorRole || player.TemporaryData.Contains("IsGhostSpectator");
         }
     }
 
