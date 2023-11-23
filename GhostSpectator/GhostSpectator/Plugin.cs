@@ -19,7 +19,7 @@ namespace GhostSpectator
 		public PluginHandler pluginHandler;
 
 		[PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.0.0", null, "Phineapple_18")]
+		[PluginEntryPoint("GhostSpectator", "1.0.1", null, "Phineapple_18")]
 		public void OnLoad()
 		{
 			if (!PluginConfig.IsEnabled)
