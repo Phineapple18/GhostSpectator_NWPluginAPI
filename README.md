@@ -24,4 +24,4 @@ Plugin, that lets players change into Ghosts: Tutorials, that are undetectable t
 |ghost_after_warhead|List\<string\>|[]|Groups, that can change into Ghosts after warhead detonation.|
 
 ## Credits
-Original plugin: [Thundermaker300](https://github.com/Thundermaker300)
+- Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
