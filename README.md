@@ -9,19 +9,36 @@ Plugin, that lets players change into Ghosts: Tutorials, that are undetectable t
 |---|---|---|---|
 |is_enabled|bool|true|Is plugin enabled?|
 |debug|bool|false|Should Debug be enabled?|
-|ghost_color|string|A0A0A0|Color of Ghosts nicknames.|
-|spawn_message|string|<size=50><color=#A0A0A0>You are a Ghost!</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.</size>|Message shown to Ghosts upon spawning.|
+|ghost_color|string|'#A0A0A0'|Color of Ghosts nicknames.|
 |spawn_message_duration|ushort|5|Duration of spawn message.|
+|spawn_point|string|9, 1002, 1|Ghost spawn position.|
 |teleport_item|ItemType|Lantern|Item given to every Ghost, that can teleport them to alive player when dropped.|
-|player_teleport_fail_message|string|There is nobody you can teleport to.|Hint shown to Ghost, if teleport fails.|
 |role_teleport_blacklist|List\<RoleTypeId\>|- Tutorial|A list of roles that Ghosts cannot be teleported to. Scp079 is already included.|
 |despawn_on_detonation|bool|true|Should Ghosts be despawned and not allowed to spawn after warhead detonation?|
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if spectated player is not a Ghost?|
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
-|ghost_self|List\<string\>|- admin</br>- vip</br>- none|Groups, that can change themselves into Ghosts. \"none\" means a person with no server role.|
-|ghost_others|List\<string\>|-admin|Groups, that can change others into Ghosts.|
-|ghost_interact_items|List\<string\>|[]|Groups, that can interact drop or throw items while being Ghosts.|
-|ghost_after_warhead|List\<string\>|[]|Groups, that can change into Ghosts after warhead detonation.|
+|translation|Translation|new Translation()|Translations. Don't translate words put between two \'%\'.|
+
+**Translation** allows person to translate **Ghost nickname, shown messages, command descriptions and outputs.**
+
+## Commands
+- GhostParent - Parent command for GhostSpectator.
+- Spawn - Spawn selected player(s) as a Ghost.
+- Despawn - Despawn selected player(s) from Ghost to Tutorial (true) or Spectator (false = default option).
+- GhostMe - Change yourself to Ghost from Spectator or vice versa.
+- List - Print list of all Ghosts.
+
+## Permissions
+- gs.items - allows Ghost to drop or throw items
+- gs.noclip - allows Ghost to have noclip enabled 
+- gs.spawn.self - allows player to (de)spawn themselves to and from Ghost
+- gs.spawn.others - allows player to (de)spawn any player to and from Ghost
+- gs.warhead - allows player to (de)spawn themselves or others to and from Ghost after warhead detonation
+
+## Required dependencies
+- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem) by ced777ric
+- [Harmony](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - attached to release
+- AssemblyPublicized - attached to release
 
 ## Credits
 - Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
