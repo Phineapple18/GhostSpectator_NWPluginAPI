@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using NWAPIPermissionSystem;
 using PluginAPI.Core;
+using Utils;
 
 namespace GhostSpectator.Commands
 {
@@ -18,57 +21,78 @@ namespace GhostSpectator.Commands
 			"d"
 		};
 
-		public string Description { get; } = "Despawn selected player from Ghost to spectator (true and default) or just Tutorial (false).";
+		public string Description { get; } = "Despawn selected player(s) from Ghost to Tutorial (true) or Spectator (false = default option).";
 
 		public string[] Usage { get; } = new string[]
 		{
-			"PlayerID",
-			"true/false"
+            "true/false (optional)",
+            "%player% or all"
 		};
 
 		public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
 			if (Plugin.Singleton == null)
 			{
-				response = "GhostSpectator is not enabled.";
+				response = Plugin.notEnabled;
 				return false;
 			}
-			Player commandsender = Player.Get(sender);
-			var config = Plugin.Singleton.PluginConfig;
-			if (commandsender == null || !config.GhostOthers.Contains(commandsender.GetGroup()))
+            Config config = Plugin.Singleton.PluginConfig;
+            if (!sender.CheckPermission("gs.spawn.others"))
 			{
-				response = "You don't have permission to use that command.";
+				response = config.Translation.NoPerms;
 				return false;
 			}
-			if (arguments.IsEmpty())
-			{
-				response = $"Usage: {Usage[0]} {Usage[1]}.";
-				return false;
-			}
-			if (!int.TryParse(arguments.At(0), out int id))
-			{
-				response = "Player ID must be a number.";
-				return false;
-			}
-			if (!Player.TryGet(id, out Player player))
-			{
-				response = $"Player with ID {id} not found.";
-				return false;
-			}
-            if (player == null)
+            if (!Round.IsRoundStarted)
             {
-                response = "Player is null.";
+                response = config.Translation.BeforeRound;
                 return false;
             }
-            if (!player.IsGhost())
+            if (Warhead.IsDetonated && Plugin.Singleton.PluginConfig.DespawnOnDetonation && !sender.CheckPermission("gs.warhead"))
+            {
+                response = config.Translation.AfterWarhead;
+                return false;
+            }
+            if (arguments.IsEmpty())
 			{
-				response = "Player is not a Ghost.";
+				response = $"{config.Translation.Usage}: {this.DisplayCommandUsage()}.";
 				return false;
 			}
-			GhostSpectator.Despawn(player, arguments.Count == 1 || !bool.TryParse(arguments.At(1), out bool toSpec) || toSpec);
-			response = $"Player {player.Nickname} was despawned from Ghost.";
-			Log.Debug($"{response} by {sender.LogName}.", config.Debug, Plugin.Singleton.pluginHandler.PluginName);
-			return true;
+            int index = bool.TryParse(arguments.At(0), out bool tutorial) ? 1 : 0;
+            List<ReferenceHub> validHubs = arguments.At(index).ToLower() == "all" ? ReferenceHub.AllHubs.ToList() : RAUtils.ProcessPlayerIdOrNamesList(arguments, index, out string[] array);
+            if (validHubs.IsEmpty())
+            {
+                response = config.Translation.NoPlayers;
+                return false;
+            }
+			if (validHubs.Count == 1 && validHubs[0].isLocalPlayer)
+			{
+                response = config.Translation.DedicatedServer;
+                return false;
+            }
+            StringBuilder success = new ($"{config.Translation.DepawnSuccess}: ");
+            StringBuilder failure = new ($"{config.Translation.DepawnFail}: ");
+            foreach (var hub in validHubs)
+            {
+                Player player = Player.Get(hub);
+                if (player.IsServer)
+                {
+                    continue;
+                }
+                if (!player.IsGhost())
+                {
+                    failure.Append($"{player.Nickname}|");
+                    continue;
+                }
+                GhostSpectator.Despawn(player, !tutorial);
+                success.Append($"{player.Nickname}|");
+            }
+            success.Replace("%num%", success.ToString().Count(c => c.Equals('|')).ToString());
+            failure.Replace("%num%", failure.ToString().Count(c => c.Equals('|')).ToString());
+
+			response = success.AppendLine().Append(failure).ToString();
+            string debug = Regex.Replace(response, "<.*?>", "").Replace(Environment.NewLine, "| ");
+            Log.Debug($"{debug}", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.Despawn");
+            return true;
 		}
 	}
 }

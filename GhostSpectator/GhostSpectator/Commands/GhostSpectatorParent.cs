@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,16 +40,18 @@ namespace GhostSpectator.Commands
 		{
 			if (Plugin.Singleton == null)
 			{
-				response = "GhostSpectator is not enabled.";
+				response = Plugin.notEnabled;
 				return false;
 			}
+			Translation translation = Plugin.Singleton.PluginConfig.Translation;
 			StringBuilder stringBuilder = StringBuilderPool.Shared.Rent();
-			stringBuilder.AppendLine(Description + " Available subcommands:");
-			foreach (ICommand command in this.AllCommands)
+			stringBuilder.AppendLine($"{translation.ParentDescription} {translation.Subcommands}:");
+
+            foreach (ICommand command in this.AllCommands)
 			{
-				stringBuilder.AppendLine($"- {command.Command} | Aliases: {(command.Aliases.Length == 0 ? "None" : string.Join(", ", command.Aliases))} | Description: {command.Description}");
-			}
-			response = StringBuilderPool.Shared.ToStringReturn(stringBuilder).TrimEnd(Array.Empty<char>());
+                stringBuilder.AppendLine($"- {command.Command} | {translation.Aliases}: {(command.Aliases.Length == 0 ? "None" : string.Join(", ", command.Aliases))} | {translation.Description}: {translation.Descriptions().First(c => c.Key.ToLower() == $"{command.Command}description").Value}");
+            }
+            response = StringBuilderPool.Shared.ToStringReturn(stringBuilder).TrimEnd(Array.Empty<char>());
 			return true;
 		}
 	}

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using NWAPIPermissionSystem;
 using PlayerRoles;
 using PluginAPI.Core;
 
@@ -20,46 +21,51 @@ namespace GhostSpectator.Commands
 			"gme"
 		};
 
-		public string Description { get; } = "Change yourself to Ghost from Spectator or vice versa by typing this command.";
+		public string Description { get; } = "Change yourself to Ghost from Spectator or vice versa.";
 
 		public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
 			if (Plugin.Singleton == null)
 			{
-				response = "GhostSpectator is not enabled.";
-				return false;
+                response = Plugin.notEnabled;
+                return false;
 			}
-			Player commandsender = Player.Get(sender);
-			var config = Plugin.Singleton.PluginConfig;
-			if (commandsender == null || !config.GhostSelf.Contains(commandsender.GetGroup()))
+            Config config = Plugin.Singleton.PluginConfig;
+            if (!sender.CheckPermission("gs.spawn.self"))
 			{
-				response = "You don't have permission to use that command.";
-				return false;
-			}
-			if (commandsender.IsGhost())
+				response = config.Translation.NoPerms;
+                return false;
+            }
+			Player commandsender = Player.Get(sender);	
+			if (commandsender == null)
+			{
+				response = config.Translation.SenderNull;
+                return false;
+            }
+            if (!Round.IsRoundStarted)
+            {
+                response = config.Translation.BeforeRound;
+                return false;
+            }
+            if (Warhead.IsDetonated && config.DespawnOnDetonation && !sender.CheckPermission("gs.warhead"))
+            {
+                response = config.Translation.AfterWarhead;
+                return false;
+            }
+            if (commandsender.IsGhost())
 			{
 				GhostSpectator.Despawn(commandsender, true);
-				response = "You have changed yourself to Spectator.";
-				return true;
-			}
-			if (!Round.IsRoundStarted)
-			{
-				response = "You can't turn into Ghost before round start.";
-				return false;
-			}
-			if (Warhead.IsDetonated && config.DespawnOnDetonation && !config.GhostAfterWarhead.Contains(commandsender.GetGroup()))
-			{
-				response = "You can't turn into Ghost after warhead detonation.";
-				return false;
+                response = config.Translation.SelfSpec;
+                return true;
 			}
 			if (commandsender.Role == RoleTypeId.Spectator)
 			{
 				GhostSpectator.Spawn(commandsender);
-				response = "You have changed yourself to Ghost.";
-				return true;
+                response = config.Translation.SelfGhost;
+                return true;
 			}
-			response = "You can't use that command, if you are neither dead nor Ghost.";
-			return false;
+            response = config.Translation.SelfFail;
+            return false;
 		}
 	}
 }
