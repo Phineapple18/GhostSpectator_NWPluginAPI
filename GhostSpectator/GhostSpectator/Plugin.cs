@@ -9,6 +9,7 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
 using PluginAPI.Events;
+using UnityEngine;
 
 namespace GhostSpectator
 {
@@ -19,24 +20,38 @@ namespace GhostSpectator
 		public PluginHandler pluginHandler;
 
 		[PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.0.1", null, "Phineapple_18")]
+		[PluginEntryPoint("GhostSpectator", "1.0.2", null, "Phineapple_18")]
 		public void OnLoad()
 		{
 			if (!PluginConfig.IsEnabled)
 			{
-				return;
+				notEnabled = PluginConfig.Translation.NotEnabled;
+                return;
 			}
 			Singleton = this;
-			pluginHandler = PluginHandler.Get(this);
-			EventManager.RegisterEvents<EventHandlers>(this);
-			this.harmony = new Harmony(string.Format("ghostspectator.{0}", DateTime.UtcNow.Ticks));
-			this.harmony.PatchAll();
+            pluginHandler = PluginHandler.Get(this);
+            EventManager.RegisterEvents<EventHandlers>(this);
+            this.harmony = new Harmony(string.Format("ghostspectator.{0}", DateTime.UtcNow.Ticks));
+            this.harmony.PatchAll();
+            try
+            {
+                string[] newPosition = PluginConfig.SpawnPoint.Split(',');
+                spawnPosition = new(float.Parse(newPosition[0]), float.Parse(newPosition[1]), float.Parse(newPosition[2]));
+            }
+            catch (Exception)
+            {
+                Log.Error("The SpawnPosition is in wrong format in Config file, default SpawnPosition will be used instead.", pluginHandler.PluginName);
+            }
             Log.Info($"Loaded plugin {pluginHandler.PluginName} by {pluginHandler.PluginAuthor}.");
 		}
 
         [PluginConfig] public Config PluginConfig;
 
-		internal Harmony harmony;
-	}
+        internal Harmony harmony;
+
+        internal static string notEnabled;
+
+        internal static Vector3 spawnPosition = new (9f, 1002f, 1f);
+    }
 }
 
