@@ -10,9 +10,9 @@ using HarmonyLib;
 using NorthwoodLib.Pools;
 using PlayerRoles.FirstPersonControl.NetworkMessages;
 using PlayerRoles.Visibility;
-using PluginAPI.Core;
 using PlayerRoles.Spectating;
 using PlayerRoles;
+using PluginAPI.Core;
 
 namespace GhostSpectator.Patches
 {
