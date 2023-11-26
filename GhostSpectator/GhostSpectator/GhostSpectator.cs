@@ -14,7 +14,7 @@ namespace GhostSpectator
 		public static void Spawn(Player ply)
 		{
 			ply.TemporaryData.Add("IsGhostSpectator", "spawning");
-			ply.SetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin);
+			ply.ReferenceHub.roleManager.ServerSetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin, RoleSpawnFlags.None);
 			try
 			{
 				ply.GameObject.GetComponent<GhostComponent>().enabled = true;
@@ -43,10 +43,5 @@ namespace GhostSpectator
 		}
 
 		public static IEnumerable<Player> List => Player.GetPlayers().Where(x => x.IsGhost());
-
-        internal static string GetGroup(this Player player)
-        {
-            return ServerStatic.PermissionsHandler._members.TryGetValue(player.UserId, out string group) ? group : "none";
-        }
     }
 }

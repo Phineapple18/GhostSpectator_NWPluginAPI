@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using NWAPIPermissionSystem;
 using PlayerRoles;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
@@ -41,16 +42,20 @@ namespace GhostSpectator
                     List<Player> validPlayers = Player.GetPlayers().Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role))).ToList();
                     if (validPlayers.IsEmpty())
                     {
-                        ev.Player.ReceiveHint(config.PlayerTeleportFailMessage, 3f);
+                        ev.Player.ReceiveHint(config.Translation.TeleportFail, 3f);
+						Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid targets.", config.Debug, pluginName);
                     }
                     else
                     {
                         Player target = validPlayers.ElementAt(RandInt.Next(validPlayers.Count - 1));
                         ev.Player.Position = target.Position + Vector3.up;
+						string message = config.Translation.TeleportSuccess.Replace("%player%", target.Nickname);
+                        ev.Player.ReceiveHint(message, 3f);
+                        Log.Debug($"Player {ev.Player.Nickname} teleported to {target.Nickname}.", config.Debug, pluginName);
                     }
                     return false;
                 }
-				return config.GhostInteractItems.Contains(ev.Player.GetGroup());
+				return ev.Player.CheckPermission("gs.items");
             }
 
             return true;
@@ -67,8 +72,9 @@ namespace GhostSpectator
 		{
 			if (ev.Player.IsGhost())
 			{
-				ev.Player.Position = new Vector3(40f, 1015f, -37f);
-				return false;
+				ev.Player.Position = Plugin.spawnPosition;
+                Log.Debug($"Player {ev.Player.Nickname} left PD as Ghost.", config.Debug, pluginName);
+                return false;
 			}
 
 			return true;
@@ -80,20 +86,27 @@ namespace GhostSpectator
             if (ev.Player.TryGetComponent<GhostComponent>(out GhostComponent ghostComponent))
             {
                 UnityEngine.Object.Destroy(ghostComponent);
+                Log.Debug($"Destroyed GhostComponent for {ev.Player.Nickname}.", config.Debug, pluginName);
             }
+        }
+
+        [PluginEvent(ServerEventType.PlayerRemoveHandcuffs)]
+        internal bool OnPlayerRemoveHandcuffs(PlayerRemoveHandcuffsEvent ev)
+		{
+            return !ev.Player.IsGhost();
         }
 
         [PluginEvent(ServerEventType.PlayerThrowItem)]
 		internal bool OnPlayerThrowItem(PlayerThrowItemEvent ev)
 		{
-			return !ev.Player.IsGhost() || config.GhostInteractItems.Contains(ev.Player.GetGroup());
+			return !ev.Player.IsGhost() || ev.Player.CheckPermission("gs.items");
 		}
 
 		[PluginEvent(ServerEventType.PlayerThrowProjectile)]
 		internal bool OnPlayerThrowProjectile(PlayerThrowProjectileEvent ev)
 		{
-			return !ev.Thrower.IsGhost() || config.GhostInteractItems.Contains(ev.Thrower.GetGroup());
-		}
+			return !ev.Thrower.IsGhost() || ev.Thrower.CheckPermission("gs.items");
+        }
 
 		[PluginEvent(ServerEventType.PlayerUsingIntercom)]
 		internal bool OnPlayerUsingIntercom(PlayerUsingIntercomEvent ev)
@@ -136,7 +149,7 @@ namespace GhostSpectator
 		{
 			if (config.DespawnOnDetonation)
 			{
-				foreach (Player ghost in GhostSpectator.List)
+				foreach (Player ghost in from g in GhostSpectator.List where !g.CheckPermission("gs.warhead") select g)
 				{
 					GhostSpectator.Despawn(ghost, true);
 				}
@@ -145,6 +158,8 @@ namespace GhostSpectator
 
 		private readonly Config config = Plugin.Singleton.PluginConfig;
 
-		private static readonly System.Random RandInt = new System.Random();
+        private readonly string pluginName = Plugin.Singleton.pluginHandler.PluginName;
+
+        private static readonly System.Random RandInt = new System.Random();
 	}
 }

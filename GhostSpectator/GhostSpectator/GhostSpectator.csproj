@@ -10,7 +10,7 @@
     <RootNamespace>GhostSpectator</RootNamespace>
     <AssemblyName>GhostSpectator</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-	<LangVersion>9.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -53,6 +53,9 @@
     </Reference>
     <Reference Include="NorthwoodLib">
       <HintPath>$(SLMain)\NorthwoodLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NWAPIPermissionSystem">
+      <HintPath>$(SLPlugin)\NWAPIPermissionSystem.dll</HintPath>
     </Reference>
     <Reference Include="PluginAPI">
       <HintPath>$(SLMain)\PluginAPI.dll</HintPath>
@@ -90,6 +93,11 @@
     <Compile Include="Patches\VisibilityPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Translation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>
