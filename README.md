@@ -4,7 +4,7 @@ Plugin, that lets players change into Ghosts: Tutorials, that are undetectable t
 - Ghosts can't pick up or use items and interact with objects.
 - Ghosts can pass through most of the doors.
 
-### Required dependencies (1.0.2): 
+### Required plugins and dependencies (1.0.2): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem) by ced777ric
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - attached to release
 - AssemblyCSharpPublicized - attached to release
