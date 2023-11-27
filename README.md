@@ -1,8 +1,13 @@
 # GhostSpectator_NWAPI
-Plugin, that lets players change into Ghosts: Tutorials, that are undetectable to alive player and have no influence on course of game. Ghosts can teleport to random alive player by dropping item declared in Config (Lantern by default).
+Plugin, that lets players change into Ghosts: Tutorials, that are undetectable to an alive player and have no influence on course of the game. Ghosts can teleport to a random alive player by dropping item declared in Config (Lantern by default).
 - Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on Config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items and interact with objects.
 - Ghosts can pass through most of the doors.
+
+### Required dependencies (1.0.2): 
+- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem) by ced777ric
+- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - attached to release
+- AssemblyCSharpPublicized - attached to release
 
 ## Config
 |Name|Type|Default value|Description|
@@ -34,11 +39,6 @@ Plugin, that lets players change into Ghosts: Tutorials, that are undetectable t
 - gs.spawn.self - allows player to (de)spawn themselves to and from Ghost
 - gs.spawn.others - allows player to (de)spawn any player to and from Ghost
 - gs.warhead - allows player to (de)spawn themselves or others to and from Ghost after warhead detonation
-
-## Required dependencies
-- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem) by ced777ric
-- [Harmony](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - attached to release
-- AssemblyPublicized - attached to release
 
 ## Credits
 - Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
