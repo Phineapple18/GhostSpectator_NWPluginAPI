@@ -10,8 +10,8 @@ Plugin, that lets players change into Ghosts: Tutorials, that are undetectable t
 
 ## Required plugins and dependencies (1.0.3): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric
-- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike
-- AssemblyCSharpPublicized - attached to release
+- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike (dependencies)
+- AssemblyCSharpPublicized - attached to release (dependencies)
 
 ## Config
 |Name|Type|Default value|Description|
