@@ -2,11 +2,11 @@
 Plugin, that lets players change into Ghosts: Tutorials, that are undetectable to an alive player and have no influence on course of the game.
 
 ## Features
-- Ghosts can teleport to a random alive player by dropping item declared in Config (Lantern by default).
-- Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on Config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
+- Ghosts can teleport to a random alive player by dropping item declared in config (Lantern by default).
+- Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items and interact with objects (partially except shooting targets).
 - Ghosts can pass through most of the doors.
-- Depending on permission, Ghosts can noclip, spawn themselves a shooting target and give themselves a firearm.
+- Depending on permission, Ghosts can noclip, spawn themselves a shooting target and give themselves a firearm. A firearm will be automatically refilled, when emptied.
 
 ## Required plugins and dependencies (1.0.3): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric
@@ -42,12 +42,12 @@ Translations for commands are in separate file "commandtranslation.yml" in the s
 - despawn (RAC) - Despawn selected player(s) from Ghost to Tutorial (true) or Spectator (false = default option).
 - destroytarget (CC) - Destroy your shooting target by typing its NetId or print a list of all your currently spawned targets.
 - ghostme (CC) - Change yourself to Ghost from Spectator or vice versa.
-- givegun (CC) - Give yourself a gun. 
+- givegun (CC) - Give yourself a firearm. 
 - list (RAC) - Print list of all Ghosts.
 - spawn (RAC) - Spawn selected player(s) as a Ghost.
 
 ## Permissions
-- gs.gun - allows a Ghost to give themselves a firearm
+- gs.firearm - allows a Ghost to give themselves a firearm
 - gs.items - allows a Ghost to drop or throw items
 - gs.noclip - allows a Ghost to have noclip enabled
 - gs.spawn.others - allows a player to (de)spawn any player to and from Ghost
