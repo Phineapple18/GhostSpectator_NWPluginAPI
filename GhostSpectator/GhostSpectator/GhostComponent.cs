@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using AdminToys;
 using CustomPlayerEffects;
 using InventorySystem.Items;
 using MEC;
+using Mirror;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 using UnityEngine;
+using Utils.Networking;
 
 namespace GhostSpectator
 {
@@ -18,19 +22,19 @@ namespace GhostSpectator
     {
         public void Awake()
         {
-            this._player = Player.Get(ReferenceHub.GetHub(base.transform.root.gameObject));
+            _player = Player.Get(ReferenceHub.GetHub(base.transform.root.gameObject));
             Log.Debug($"Created GhostComponent for {_player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
         }
 
         public void OnEnable()
         {
-            Config config = Plugin.Singleton.PluginConfig;
-            _player.Position = Plugin.spawnPosition;
             _player.TemporaryData.StoredData["IsGhostSpectator"] = "spawned";
             _player.PlayerInfo.IsRoleHidden = true;
             _player.PlayerInfo.IsNicknameHidden = true;
-            _player.CustomInfo = $"<color={config.GhostColor}>{_player.Nickname}\n{config.Translation.Ghost}</color>";
+            Config config = Plugin.Singleton.PluginConfig;
+            _player.CustomInfo = $"<color={config.GhostColor}>{_player.Nickname}\n{config.GhostNickname}</color>";
 
+            _player.Position = Plugin.spawnPositions.ElementAt(new System.Random().Next(Plugin.spawnPositions.Count));
             _player.IsGodModeEnabled = true;  
             _player.Health = 64057f;
             _player.ReferenceHub.interCoordinator.AddBlocker(this);
@@ -42,10 +46,10 @@ namespace GhostSpectator
             });
 
             _player.AddItem(config.TeleportItem);
-            if (!string.IsNullOrWhiteSpace(config.Translation.SpawnMessage))
+            if (!string.IsNullOrWhiteSpace(config.Spawnmessage))
             {
-                string message = config.Translation.SpawnMessage.Replace("%colour%", config.GhostColor).Replace("%TeleportItem%", config.TeleportItem.ToString());
-                _player.SendBroadcast(message, config.SpawnMessageDuration, Broadcast.BroadcastFlags.Normal, true);
+                string message = config.Spawnmessage.Replace("%colour%", config.GhostColor).Replace("%TeleportItem%", config.TeleportItem.ToString());
+                _player.SendBroadcast(message, config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
             }
             Log.Debug($"Enabled GhostComponent for {_player.Nickname}.", config.Debug, Plugin.Singleton.pluginHandler.PluginName);
         }
@@ -62,13 +66,24 @@ namespace GhostSpectator
             _player.IsNoclipEnabled = false;
             _player.Health = 100f;
             _player.ClearInventory();
+
+            foreach (var toy in this.shootingTargets)
+            {
+                if (NetworkUtils.SpawnedNetIds.TryGetValue(toy.Key, out NetworkIdentity networkIdentity) && networkIdentity.TryGetComponent<AdminToyBase>(out AdminToyBase target))
+                {
+                    NetworkServer.Destroy(target.gameObject);
+                }
+                this.shootingTargets.Remove(toy.Key);
+            }
             Log.Debug($"Disabled GhostComponent for {_player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
         }
 
-        public BlockedInteraction BlockedInteractions => BlockedInteraction.BeDisarmed | BlockedInteraction.GeneralInteractions | BlockedInteraction.GrabItems | BlockedInteraction.ItemPrimaryAction | BlockedInteraction.ItemUsage;
+        public BlockedInteraction BlockedInteractions => BlockedInteraction.BeDisarmed | BlockedInteraction.GeneralInteractions | BlockedInteraction.GrabItems;
 
         public bool CanBeCleared => !base.enabled;
 
         private Player _player;
+
+        internal Dictionary<uint, AdminToyBase> shootingTargets = new ();
     }
 }

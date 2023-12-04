@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>$(SLPlugin)\0Harmony.dll</HintPath>
+      <HintPath>$(SLDependencies)\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(SLMain)\Assembly-CSharp.dll</HintPath>
@@ -43,7 +43,7 @@
       <HintPath>$(SLMain)\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-Publicized">
-      <HintPath>$(SLPlugin)\Assembly-CSharp-Publicized.dll</HintPath>
+      <HintPath>$(SLDependencies)\Assembly-CSharp-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="CommandSystem.Core">
       <HintPath>$(SLMain)\CommandSystem.Core.dll</HintPath>
@@ -74,17 +74,31 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(SLMain)\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SLMain)\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SLMain)\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\Despawn.cs" />
-    <Compile Include="Commands\GhostMe.cs" />
-    <Compile Include="Commands\GhostSpectatorParent.cs" />
-    <Compile Include="Commands\List.cs" />
-    <Compile Include="Commands\Spawn.cs" />
+    <Compile Include="Commands\ClientConsole\CreateTarget.cs" />
+    <Compile Include="Commands\ClientConsole\DestroyTarget.cs" />
+    <Compile Include="Commands\ClientConsole\GhostMe.cs" />
+    <Compile Include="Commands\ClientConsole\GhostSpectatorParent.cs" />
+    <Compile Include="Commands\ClientConsole\GiveFirearm.cs" />
+    <Compile Include="Commands\CommandTranslation.cs" />
+    <Compile Include="Commands\RemoteAdminConsole\Despawn.cs" />
+    <Compile Include="Commands\RemoteAdminConsole\GhostSpectatorParent.cs" />
+    <Compile Include="Commands\RemoteAdminConsole\List.cs" />
+    <Compile Include="Commands\RemoteAdminConsole\Spawn.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EventHandlers.cs" />
     <Compile Include="GhostComponent.cs" />
     <Compile Include="GhostSpectator.cs" />
+    <Compile Include="Patches\BulletPatch.cs" />
     <Compile Include="Patches\CheckSpawnablePatch.cs" />
     <Compile Include="Patches\FootstepPatch.cs" />
     <Compile Include="Patches\Scp049Patches.cs" />
@@ -93,8 +107,8 @@
     <Compile Include="Patches\VisibilityPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Translation.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

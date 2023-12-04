@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using InventorySystem.Items.Firearms;
 using NWAPIPermissionSystem;
 using PlayerRoles;
 using PluginAPI.Core;
@@ -17,6 +18,12 @@ namespace GhostSpectator
 {
     internal class EventHandlers
     {
+        [PluginEvent(ServerEventType.PlayerCoinFlip)]
+        internal bool OnPlayerCoinFlip(PlayerCoinFlipEvent ev)
+        {
+            return !ev.Player.IsGhost();
+        }
+
         [PluginEvent(ServerEventType.PlayerChangeRole)]
 		internal void OnPlayerChangeRole(PlayerChangeRoleEvent ev)
 		{
@@ -42,18 +49,23 @@ namespace GhostSpectator
                     List<Player> validPlayers = Player.GetPlayers().Where(p => p.IsAlive && !(p.IsGhost() || p.Role == RoleTypeId.Scp079 || config.RoleTeleportBlacklist.Contains(p.Role))).ToList();
                     if (validPlayers.IsEmpty())
                     {
-                        ev.Player.ReceiveHint(config.Translation.TeleportFail, 3f);
+                        ev.Player.ReceiveHint(config.TeleportFail, 3f);
 						Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid targets.", config.Debug, pluginName);
                     }
                     else
                     {
-                        Player target = validPlayers.ElementAt(RandInt.Next(validPlayers.Count - 1));
+                        Player target = validPlayers.ElementAt(random.Next(validPlayers.Count));
                         ev.Player.Position = target.Position + Vector3.up;
-						string message = config.Translation.TeleportSuccess.Replace("%player%", target.Nickname);
+						string message = config.TeleportSuccess.Replace("%player%", target.Nickname);
                         ev.Player.ReceiveHint(message, 3f);
                         Log.Debug($"Player {ev.Player.Nickname} teleported to {target.Nickname}.", config.Debug, pluginName);
                     }
                     return false;
+                }
+				if (ev.Item.Category == ItemCategory.Firearm)
+				{
+					ev.Player.RemoveItem(ev.Item);
+                    return true;
                 }
 				return ev.Player.CheckPermission("gs.items");
             }
@@ -72,7 +84,7 @@ namespace GhostSpectator
 		{
 			if (ev.Player.IsGhost())
 			{
-				ev.Player.Position = Plugin.spawnPosition;
+				ev.Player.Position = Plugin.spawnPositions.ElementAt(random.Next(Plugin.spawnPositions.Count));
                 Log.Debug($"Player {ev.Player.Nickname} left PD as Ghost.", config.Debug, pluginName);
                 return false;
 			}
@@ -96,6 +108,16 @@ namespace GhostSpectator
             return !ev.Player.IsGhost();
         }
 
+        [PluginEvent(ServerEventType.PlayerShotWeapon)]
+        internal void OnPlayerShotWeapon(PlayerShotWeaponEvent ev)
+		{
+			if (ev.Player.IsGhost() && ev.Firearm.Status.Ammo == 0)
+			{
+                uint attachments = ev.Firearm.Status.Attachments;
+				ev.Firearm.Status = new FirearmStatus(ev.Firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, attachments);
+            }
+		}
+
         [PluginEvent(ServerEventType.PlayerThrowItem)]
 		internal bool OnPlayerThrowItem(PlayerThrowItemEvent ev)
 		{
@@ -108,7 +130,13 @@ namespace GhostSpectator
 			return !ev.Thrower.IsGhost() || ev.Thrower.CheckPermission("gs.items");
         }
 
-		[PluginEvent(ServerEventType.PlayerUsingIntercom)]
+        [PluginEvent(ServerEventType.PlayerUseItem)]
+        internal bool OnPlayerUseItem(PlayerUseItemEvent ev)
+        {
+            return !ev.Player.IsGhost();
+        }
+
+        [PluginEvent(ServerEventType.PlayerUsingIntercom)]
 		internal bool OnPlayerUsingIntercom(PlayerUsingIntercomEvent ev)
 		{
 			return !ev.Player.IsGhost();
@@ -160,6 +188,6 @@ namespace GhostSpectator
 
         private readonly string pluginName = Plugin.Singleton.pluginHandler.PluginName;
 
-        private static readonly System.Random RandInt = new System.Random();
+        private static readonly System.Random random = new System.Random();
 	}
 }
