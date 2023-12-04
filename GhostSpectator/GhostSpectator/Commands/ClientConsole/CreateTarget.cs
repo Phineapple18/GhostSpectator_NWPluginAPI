@@ -69,11 +69,6 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = translation.NotGrounded;
                 return false;
             }
-            foreach (var area in Plugin.shootingAreas)
-            {
-                Log.Debug($"conatins ply = {area.Contains(commandsender.Position)}");
-            }
-
             if (!Plugin.shootingAreas.Any(a => a.Contains(commandsender.Position)))
             {
                 response = translation.WrongArea;
