@@ -9,7 +9,7 @@ Plugin, that lets players change into Ghosts: Tutorials, that are undetectable t
 - Depending on permission, Ghosts can noclip, spawn themselves a shooting target and give themselves a firearm. A firearm will be automatically refilled, when emptied.
 
 ## Required plugins and dependencies (1.0.3): 
-- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric
+- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric (plugin)
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike (dependencies)
 - AssemblyCSharpPublicized - attached to release (dependencies)
 
