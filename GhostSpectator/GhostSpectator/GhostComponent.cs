@@ -39,11 +39,11 @@ namespace GhostSpectator
             _player.Health = 64057f;
             _player.ReferenceHub.interCoordinator.AddBlocker(this);
             _player.EffectsManager.EnableEffect<Scp207>();
-            Timing.CallDelayed(0.1f, delegate () 
+            Timing.CallDelayed(0.1f, () => _player.EffectsManager.EnableEffect<Ghostly>());
+            if (_player.CheckPermission("gs.noclip") && !FpcNoclip.IsPermitted(_player.ReferenceHub))
             {
-                _player.EffectsManager.EnableEffect<Ghostly>();
-                _player.IsNoclipEnabled = _player.CheckPermission("gs.noclip");
-            });
+                FpcNoclip.PermitPlayer(_player.ReferenceHub);
+            }
 
             _player.AddItem(config.TeleportItem);
             if (!string.IsNullOrWhiteSpace(config.Spawnmessage))
@@ -63,9 +63,12 @@ namespace GhostSpectator
 
             _player.EffectsManager.DisableAllEffects();
             _player.IsGodModeEnabled = false;
-            _player.IsNoclipEnabled = false;
             _player.Health = 100f;
             _player.ClearInventory();
+            if (_player.CheckPermission("gs.noclip") && FpcNoclip.IsPermitted(_player.ReferenceHub))
+            {
+                FpcNoclip.UnpermitPlayer(_player.ReferenceHub);
+            }
 
             foreach (var toy in this.shootingTargets)
             {
