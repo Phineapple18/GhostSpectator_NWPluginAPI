@@ -1,5 +1,5 @@
 # GhostSpectator_NWAPI
-Plugin, that allows players change into Ghosts: Tutorials, that are undetectable to alive players and have no influence on course of the game.
+Plugin, that allows players change into Ghosts: Tutorials, that are undetectable to alive players and have no influence on a course of the game.
 
 ## Features
 - Ghosts can teleport to a random alive player by dropping an item declared in the config (a Lantern by default).
