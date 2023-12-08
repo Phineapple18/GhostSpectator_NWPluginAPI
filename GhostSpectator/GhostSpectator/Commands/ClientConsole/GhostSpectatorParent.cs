@@ -15,7 +15,7 @@ namespace GhostSpectator.Commands.ClientConsole
 	{
 		public GhostSpectatorParent()
 		{
-            translation = CommandTranslation.PrepareTranslations();
+            translation = CommandTranslation.loadedTranslation ?? CommandTranslation.PrepareTranslations();
             Command = !string.IsNullOrWhiteSpace(translation.ParentCommand) ? translation.ParentCommand : CommandTranslation._parentCommand;
             Description = !string.IsNullOrWhiteSpace(translation.ParentDescription) ? translation.ParentDescription : CommandTranslation._parentDescription;
             Aliases = !translation.ParentAliases.IsEmpty() ? translation.ParentAliases : CommandTranslation._parentAliases;
