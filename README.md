@@ -6,12 +6,15 @@ Plugin, that allows players change into Ghosts: Tutorials, that are undetectable
 - Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on the config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items and interact with objects (partially except the shooting targets).
 - Ghosts can pass through most of the doors.
-- Depending on the assigned permissions, Ghosts can noclip, spawn themselves a shooting target and give themselves a firearm. A firearm will be automatically refilled, when emptied.
+- Depending on the assigned permissions, Ghosts can:
+  * noclip
+  * spawn themselves a shooting target and give themselves a firearm - a firearm will be automatically refilled, when emptied
+  * listen to Ghosts, SCP or Spectator chat  
 
-## Required plugins and dependencies (1.0.3): 
-- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric (plugin)
-- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike (dependency)
-- AssemblyCSharpPublicized - attached to the release (dependency)
+## Required plugins and dependencies (1.0.4): 
+- [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
+- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to the release)
+- AssemblyCSharpPublicized - dependency (attached to the release)
 
 ## Config
 |Name|Type|Default value|Description|
@@ -41,6 +44,8 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 - createtarget (CC) - Create a shooting target.
 - despawn (RAC) - Despawn selected player(s) from Ghost to Tutorial (true) or Spectator (false = default option).
 - destroytarget (CC) - Destroy your shooting target by typing its NetId or print a list of all your currently spawned targets.
+- disablevoicechannel (CC) - Disable listening to SCPs, Spectators or Ghosts chat. You can provide multiple arguments or just type "all".
+- enablevoicechannel (CC) - Enable listening to SCPs, Spectators or Ghosts chat. You can provide multiple arguments or just type "all".
 - ghostme (CC) - Change yourself to a Ghost from Spectator or vice versa.
 - givegun (CC) - Give yourself a firearm. 
 - list (RAC) - Print list of all Ghosts.
@@ -49,6 +54,9 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 ## Permissions
 - gs.firearm - allows a Ghost to give themselves a firearm
 - gs.items - allows a Ghost to drop or throw items
+- gs.listen.dead - allows a Ghost to hear Spectators
+- gs.listen.ghost - allows a Ghost to hear other Ghosts, if they are not in proximity
+- gs.listen.scp - allows a Ghost to hear SCPs
 - gs.noclip - allows a Ghost to have noclip enabled
 - gs.spawn.others - allows a player to (de)spawn any player to and from Ghost
 - gs.spawn.self - allows a player to (de)spawn themselves to and from Ghost
