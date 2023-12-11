@@ -36,7 +36,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 
         internal static readonly string _command = "list";
 
-        internal static readonly string _description = "Print list of all Ghosts.";
+        internal static readonly string _description = "Print a list of all Ghosts.";
 
         internal static readonly string[] _aliases = new string[] { "l" };
     }

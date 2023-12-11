@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -68,8 +68,8 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
-            StringBuilder success = new ($"{translation.DepawnSuccess}: ");
-            StringBuilder failure = new ($"{translation.DepawnFail}: ");
+            StringBuilder success = new ($"{translation.DespawnSuccess}: ");
+            StringBuilder failure = new ($"{translation.DespawnFail}: ");
             foreach (ReferenceHub hub in validHubs)
             {
                 Player player = Player.Get(hub);
