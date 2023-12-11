@@ -1,5 +1,5 @@
 # GhostSpectator_NWAPI
-Plugin, that allows players change into Ghosts: Tutorials, that are undetectable to alive players and have no influence on a course of the game. Ghosts have option to spawn shooting targets, give themselves firearms or listen to chats of certain groups.
+Plugin, that allows players to change into Ghosts: Tutorials, that are undetectable to alive players and have no influence on a course of the game. Ghosts can teleport to a random player, spawn a shooting target, give themselves firearms or listen to chats of certain groups.
 
 ![Logo](https://github.com/Phineapple18/GhostSpectator_NWPluginAPI/blob/main/Images/GS_Thumbnail.png)
 
