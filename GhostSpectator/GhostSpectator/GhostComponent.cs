@@ -11,6 +11,7 @@ using InventorySystem.Items;
 using MEC;
 using Mirror;
 using NWAPIPermissionSystem;
+using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using UnityEngine;
 using Utils.Networking;
@@ -37,7 +38,7 @@ namespace GhostSpectator
             _player.Position = Plugin.spawnPositions.ElementAt(new System.Random().Next(Plugin.spawnPositions.Count));
             _player.IsGodModeEnabled = true;  
             _player.Health = 64057f;
-            _player.ReferenceHub.interCoordinator.AddBlocker(this);
+            _player.ReferenceHub.interCoordinator.AddBlocker(this);           
             _player.EffectsManager.EnableEffect<Scp207>();
             Timing.CallDelayed(0.1f, () => _player.EffectsManager.EnableEffect<Ghostly>());
             if (_player.CheckPermission("gs.noclip") && !FpcNoclip.IsPermitted(_player.ReferenceHub))

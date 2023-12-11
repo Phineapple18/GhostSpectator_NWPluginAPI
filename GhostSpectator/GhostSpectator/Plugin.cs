@@ -23,7 +23,7 @@ namespace GhostSpectator
         [PluginConfig] public Config PluginConfig;
 
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.0.3", null, "Phineapple_18")]
+		[PluginEntryPoint("GhostSpectator", "1.0.4", null, "Phineapple18")]
 		public void OnLoad()
 		{
 			if (!PluginConfig.IsEnabled)
@@ -47,7 +47,7 @@ namespace GhostSpectator
                 try
                 {
                     string[] newPosition = position.Split(',');
-                    spawnPositions.Add(new(float.Parse(newPosition[0], dot), float.Parse(newPosition[1], dot), float.Parse(newPosition[2], dot)));
+                    spawnPositions.Add(new (float.Parse(newPosition[0], dot), float.Parse(newPosition[1], dot), float.Parse(newPosition[2], dot)));
                 }
                 catch (Exception)
                 {
@@ -57,7 +57,7 @@ namespace GhostSpectator
             }
             if (spawnPositions.Count == 0)
             {
-                spawnPositions.Add(new(9f, 1002f, 1f));
+                spawnPositions.Add(new (9f, 1002f, 1f));
                 Log.Warning("All spawn positions were in wrong format, default spawn point will be used instead.", pluginHandler.PluginName);
             }
         }

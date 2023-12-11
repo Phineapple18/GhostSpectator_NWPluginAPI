@@ -17,7 +17,7 @@ namespace GhostSpectator
         [Description("Is debug enabled?")]
         public bool Debug { get; set; } = false;
 
-        [Description("Nickname of Ghost, that is displayed in place of a role.")]
+        [Description("Nickname of a Ghost, that is displayed in place of a role.")]
         public string GhostNickname { get; set; } = "GHOST";
 
         [Description("Color of a Ghost nickname.")]
@@ -32,7 +32,7 @@ namespace GhostSpectator
         [Description("Ghost spawn positions.")]
         public List<string> Spawnpositions { get; set; } = new List<string> { "9, 1002, 1" };
 
-        [Description("Item given to every Ghost, that can teleport them to alive player when dropped.")]
+        [Description("Item given to every Ghost, that can teleport them to an alive player when dropped.")]
         public ItemType TeleportItem { get; set; } = ItemType.Lantern;
 
         [Description("Hint shown to a Ghost, if teleport succeeds.")]
@@ -59,7 +59,7 @@ namespace GhostSpectator
         [Description("How many shooting targets can one Ghost have spawned?")]
         public int TargetLimit { get; set; } = 1;
 
-        [Description("Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as perimeter along every axis.")]
+        [Description("Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.")]
         public Dictionary<string, string> ShootingAreas { get; set; } = new Dictionary<string, string>()
         {
             { "10, 995, -12", "-10, 996, -4" },
