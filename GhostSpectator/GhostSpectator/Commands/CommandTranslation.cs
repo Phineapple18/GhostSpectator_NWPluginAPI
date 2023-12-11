@@ -40,6 +40,18 @@ namespace GhostSpectator.Commands
 
         public string[] DestroytargetAliases { get; set; } = DestroyTarget._aliases;
 
+        public string DisableVoicechannelCommand { get; set; } = DisableVoicechannel._command;
+
+        public string DisableVoicechannelDescription { get; set; } = DisableVoicechannel._description;
+
+        public string[] DisableVoicechannelAliases { get; set; } = DisableVoicechannel._aliases;
+
+        public string EnableVoicechannelCommand { get; set; } = EnableVoicechannel._command;
+
+        public string EnableVoicechannelDescription { get; set; } = EnableVoicechannel._description;
+
+        public string[] EnableVoicechannelAliases { get; set; } = EnableVoicechannel._aliases;
+
         public string GhostmeCommand { get; set; } = GhostMe._command;
 
         public string GhostmeDescription { get; set; } = GhostMe._description;
@@ -65,21 +77,21 @@ namespace GhostSpectator.Commands
         public string[] SpawnAliases { get; set; } = Spawn._aliases;
 
         [Description("Translations for commands responses. Don't translate words put between two '%'.")]
-        public string Subcommands { get; set; } = "Available subcommands";
+        public string Aliases { get; set; } = "Aliases";
 
         public string Description { get; set; } = "Description";
 
-        public string Aliases { get; set; } = "Aliases";
+        public string Subcommands { get; set; } = "Available subcommands";     
 
         public string Usage { get; set; } = "Usage";
+
+        public string AvailableFirearms { get; set; } = "Available firearms";
 
         public string GhostList { get; set; } = "List of Ghosts";
 
         public string TargetList { get; set; } = "List of spawned targets";
 
-        public string AvailableFirearms { get; set; } = "Available firearms";        
-
-        public string SenderNull { get; set; } = "Command sender is null.";
+        public string SenderNull { get; set; } = "Commandsender is null.";
 
         public string NoPerms { get; set; } = "You don't have permission to use that command.";
 
@@ -97,29 +109,37 @@ namespace GhostSpectator.Commands
 
         public string NotItemtype { get; set; } = "Provided argument is not an ItemType.";
 
-        public string OnlyFirearm { get; set; } = "You can only give yourself a firearm.";
+        public string AfterWarhead { get; set; } = "You can't use that command after warhead detonation.";
 
         public string BeforeRound { get; set; } = "You can't use that command before round start.";
 
-        public string AfterWarhead { get; set; } = "You can't use that command after warhead detonation.";
-
         public string DedicatedServer { get; set; } = "You can't use that command on Dedicated Server.";
 
-        public string WrongArea { get; set; } = "You can spawn shooting targets only in a designated area.";
+        public string OnlyFirearm { get; set; } = "You can only give yourself a firearm.";
 
-        public string TargetLimit { get; set; } = "You have reached the maximum allowed number of spawned shooting targets.";
-        
-        public string WrongArgument { get; set; } = "Argument must be an id of your spawned shooting target.";
+        public string TargetNotAllowed { get; set; } = "You have reached the maximum allowed number of spawned shooting targets.";
+
+        public string WrongArea { get; set; } = "You can spawn shooting targets only in a designated area.";      
+
+        public string WrongArgument { get; set; } = "Provided argument(s) don't exist.";
+
+        public string WrongFormat { get; set; } = "Argument must be an id of your spawned shooting target.";
 
         public string CreatetargetSuccess { get; set; } = "You have spawned a shooting target with id %id%.";
 
-        public string CreatetargetFail { get; set; } = "A shooting target with provided type not found.";
+        public string DespawnSuccess { get; set; } = "Succesfully despawned <color=green>%num%</color> existing player(s) from Ghosts";
 
-        public string DepawnSuccess { get; set; } = "Succesfully despawned <color=green>%num%</color> existing player(s) from Ghosts";
-
-        public string DepawnFail { get; set; } = "Command failed for <color=red>%num%</color> existing player(s) (not a Ghost)";
+        public string DespawnFail { get; set; } = "Command failed for <color=red>%num%</color> existing player(s) (not a Ghost)";
 
         public string DestroytargetSuccess { get; set; } = "You have despawned your shooting target.";
+
+        public string DisableVoicechatFail { get; set; } = "You have either already disabled the provided voicechannel(s) or don't have permission to have them disabled.";
+
+        public string DisableVoicechatSuccess { get; set; } = "Successfully disabled listening to following groups";
+
+        public string EnableVoicechatFail { get; set; } = "You have either already enabled the provided voicechannel(s) or don't have permission to have them enabled.";
+
+        public string EnableVoicechatSuccess { get; set; } = "Successfully enabled listening to following groups";
 
         public string GivefirearmSuccess { get; set; } = "You have given yourself %itemType%. If you want to get rid of it, simply drop the firearm.";
 
