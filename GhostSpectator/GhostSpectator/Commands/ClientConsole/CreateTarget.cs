@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +10,7 @@ using Mirror;
 using NWAPIPermissionSystem;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using Utils.Networking;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -58,9 +59,9 @@ namespace GhostSpectator.Commands.ClientConsole
                 return false;
             }
             GhostComponent component = commandsender.GetComponent<GhostComponent>();
-            if (component.shootingTargets.Count >= Plugin.Singleton.PluginConfig.TargetLimit)
+            if (Plugin.Singleton.PluginConfig.TargetLimit <= 0)
             {
-                response = translation.TargetLimit;
+                response = translation.TargetNotAllowed;
                 return false;
             }
             IFpcRole fpcRole = commandsender.RoleBase as IFpcRole;
@@ -84,18 +85,27 @@ namespace GhostSpectator.Commands.ClientConsole
             try
             {
                 NetworkClient.prefabs.Values.First(a => a.TryGetComponent<AdminToyBase>(out targetBase) && targetBase.CommandName == this.targetNames[arguments.At(0)]);
-                target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
-                target.OnSpawned(commandsender.ReferenceHub, arguments);
-                component.shootingTargets.Add(target.netId, target);
-                Log.Debug($"Ghost {commandsender.Nickname} created a shooting target with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
-                response = translation.CreatetargetSuccess.Replace("%id%", target.netId.ToString());
-                return true;
             }
             catch (Exception)
             {
-                response = translation.CreatetargetFail;
+                response = translation.WrongArgument;
                 return false;
             }
+            if (component.shootingTargets.Count >= Plugin.Singleton.PluginConfig.TargetLimit)
+            {
+                var targetToRemove = component.shootingTargets.ElementAt(0);
+                if (NetworkUtils.SpawnedNetIds.TryGetValue(targetToRemove.Key, out NetworkIdentity networkIdentity) && networkIdentity.TryGetComponent<AdminToyBase>(out AdminToyBase adminToy))
+                {
+                    NetworkServer.Destroy(adminToy.gameObject);
+                }
+                component.shootingTargets.Remove(targetToRemove.Key);
+            }
+            target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
+            target.OnSpawned(commandsender.ReferenceHub, arguments);
+            component.shootingTargets.Add(target.netId, target);
+            Log.Debug($"Ghost {commandsender.Nickname} created a shooting target with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
+            response = translation.CreatetargetSuccess.Replace("%id%", target.netId.ToString());
+            return true;
         }
 
         internal static readonly string _command = "createtarget";

@@ -73,7 +73,7 @@ namespace GhostSpectator.Commands.ClientConsole
 
         internal static readonly string _command = "ghostme";
 
-        internal static readonly string _description = "Change yourself to Ghost from Spectator or vice versa.";
+        internal static readonly string _description = "Change yourself to a Ghost from Spectator or vice versa.";
 
         internal static readonly string[] _aliases = new string[] { "gme", "me" };
     }

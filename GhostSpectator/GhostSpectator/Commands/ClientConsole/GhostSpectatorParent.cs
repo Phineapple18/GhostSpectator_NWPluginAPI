@@ -32,6 +32,8 @@ namespace GhostSpectator.Commands.ClientConsole
 		{
             this.RegisterCommand(new CreateTarget(translation.CreatetargetCommand, translation.CreatetargetDescription, translation.CreatetargetAliases));
             this.RegisterCommand(new DestroyTarget(translation.DestroytargetCommand, translation.DestroytargetDescription, translation.DestroytargetAliases));
+            this.RegisterCommand(new DisableVoicechannel(translation.DisableVoicechannelCommand, translation.DisableVoicechannelDescription, translation.DisableVoicechannelAliases));
+            this.RegisterCommand(new EnableVoicechannel(translation.EnableVoicechannelCommand, translation.EnableVoicechannelDescription, translation.EnableVoicechannelAliases));
             this.RegisterCommand(new GhostMe (translation.GhostmeCommand, translation.GhostmeDescription, translation.GhostmeAliases));
             this.RegisterCommand(new GiveFirearm(translation.GivefirearmCommand, translation.GivefirearmDescription, translation.GivefirearmAliases));
         }

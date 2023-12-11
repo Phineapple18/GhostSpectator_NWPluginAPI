@@ -70,12 +70,12 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.TargetList}: {string.Join("\n- ", from id in component.shootingTargets select id.Value)}.";
+                response = $"{translation.TargetList}: {string.Join("\n- ", from id in component.shootingTargets select id.Key)}.";
                 return false;
             }
             if (!uint.TryParse(arguments.At(0), out uint targetid))
             {
-                response = translation.WrongArgument;
+                response = translation.WrongFormat;
                 return false;
             }
             if (!component.shootingTargets.Keys.Contains(targetid))
@@ -84,8 +84,8 @@ namespace GhostSpectator.Commands.ClientConsole
                 return false;
             }
             AdminToyBase target = NetworkUtils.SpawnedNetIds[targetid].GetComponent<AdminToyBase>();
-            component.shootingTargets.Remove(targetid);
             NetworkServer.Destroy(target.gameObject);
+            component.shootingTargets.Remove(targetid);
             Log.Debug($"Ghost {commandsender.Nickname} destroyed a shooting target with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.DestroyTarget");
             response = translation.DestroytargetSuccess;
             return true;
