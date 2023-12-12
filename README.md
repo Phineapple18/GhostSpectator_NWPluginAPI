@@ -16,7 +16,7 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 ## Required plugins and dependencies (1.0.4): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to the release)
-- AssemblyCSharpPublicized - dependency (attached to the release)
+- AssemblyCSharpPublicized - dependency (attached to the release), you can also use [APublicizer](https://github.com/iRebbok/APublicizer) to publicize Assembly yourself
 
 ## Config
 |Name|Type|Default value|Description|
