@@ -13,10 +13,9 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
   * spawn themselves a shooting target and give themselves a firearm - a firearm will be automatically refilled, when emptied
   * listen to Ghosts, SCP or Spectator chat
 
-## Required plugins and dependencies (1.0.4): 
+## Required plugins and dependencies (1.0.5): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to the release)
-- AssemblyCSharpPublicized - dependency (attached to the release), you can also use [APublicizer](https://github.com/iRebbok/APublicizer) to publicize Assembly yourself
 
 ## Config
 |Name|Type|Default value|Description|
