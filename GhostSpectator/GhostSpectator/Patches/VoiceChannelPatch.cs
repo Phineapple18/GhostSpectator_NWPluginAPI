@@ -15,8 +15,8 @@ using VoiceChat.Networking;
 
 namespace GhostSpectator.Patches
 {
-    [HarmonyPatch(typeof(VoiceTransceiver), nameof(VoiceTransceiver.ServerReceiveMessage))]
-    public  class VoiceChannelPatch
+    [HarmonyPatch(typeof(VoiceTransceiver), "ServerReceiveMessage")]
+    public class VoiceChannelPatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {

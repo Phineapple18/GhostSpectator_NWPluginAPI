@@ -10,7 +10,8 @@ using PluginAPI.Core;
 
 namespace GhostSpectator.Patches
 {
-    [HarmonyPatch(typeof(AnimatedCharacterModel), nameof(AnimatedCharacterModel.PlayFootstep))]
+    [HarmonyPatch(typeof(AnimatedCharacterModel), "PlayFootstep")]
+
     internal class FootstepPatch
     {
         internal static bool Prefix(AnimatedCharacterModel __instance)

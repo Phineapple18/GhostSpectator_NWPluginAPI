@@ -10,7 +10,7 @@ using Respawning;
 
 namespace GhostSpectator.Patches
 {
-    [HarmonyPatch(typeof(RespawnManager), nameof(RespawnManager.CheckSpawnable))]
+    [HarmonyPatch(typeof(RespawnManager), "CheckSpawnable")]
     internal class CheckSpawnablePatch
     {
         internal static void Postfix(RespawnManager __instance, ReferenceHub ply, ref bool __result)

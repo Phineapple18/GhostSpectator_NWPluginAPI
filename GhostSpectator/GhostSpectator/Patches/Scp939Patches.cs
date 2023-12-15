@@ -24,7 +24,7 @@ namespace GhostSpectator.Patches
 	}
 
 
-    [HarmonyPatch(typeof(SurfaceRippleTrigger), nameof(SurfaceRippleTrigger.LateUpdate))]
+    [HarmonyPatch(typeof(SurfaceRippleTrigger), "LateUpdate")]
     internal class SurfaceRipplePatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)

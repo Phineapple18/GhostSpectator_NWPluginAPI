@@ -1,22 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
+using NorthwoodLib.Pools;
 using PluginAPI.Core;
-using UnityEngine;
 
 namespace GhostSpectator.Patches
 {
-    [HarmonyPatch(typeof(StandardHitregBase), nameof(StandardHitregBase.PlaceBulletholeDecal))]
+    [HarmonyPatch(typeof(StandardHitregBase), "PlaceBulletholeDecal")]
+
     internal class BulletPatch
     {
-        private static bool Prefix(StandardHitregBase __instance, Ray ray, RaycastHit hit)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            return !Player.Get(__instance.Hub).IsGhost();
+            List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
+
+            Label returnLabel = generator.DefineLabel();
+
+            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Ldarga_S);
+
+            newInstructions.InsertRange(index, new List<CodeInstruction>
+            {
+                new (OpCodes.Ldarg_0),
+                new (OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(StandardHitregBase), "Hub")),
+                new (OpCodes.Call, AccessTools.Method(typeof(BulletPatch), nameof(IsGhost), new[] { typeof(ReferenceHub)})),
+                new (OpCodes.Brtrue, returnLabel)
+            });
+
+            newInstructions[newInstructions.Count - 1].WithLabels(returnLabel);
+
+            for (int i = 0; i < newInstructions.Count; i++)
+            {
+                yield return newInstructions[i];
+            }
+
+            ListPool<CodeInstruction>.Shared.Return(newInstructions);
+        }
+
+        private static bool IsGhost(ReferenceHub hub)
+        {
+            return Player.Get(hub).IsGhost();
         }
     }
 }
