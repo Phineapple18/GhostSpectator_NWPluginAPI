@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
@@ -12,11 +12,10 @@ using PlayerRoles;
 using PlayerRoles.PlayableScps.Scp049;
 using PlayerRoles.Spectating;
 using PluginAPI.Core;
-using UnityEngine;
 
 namespace GhostSpectator.Patches
 {
-	[HarmonyPatch(typeof(Scp049ResurrectAbility), nameof(Scp049ResurrectAbility.ServerValidateAny))]
+    [HarmonyPatch(typeof(Scp049ResurrectAbility), "ServerValidateAny")]
     internal class Scp049ResurrectPatch
 	{
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
@@ -40,15 +39,6 @@ namespace GhostSpectator.Patches
         {
             Player player = Player.Get(hub);
             return player.RoleBase is SpectatorRole || player.TemporaryData.Contains("IsGhostSpectator");
-        }
-    }
-
-    [HarmonyPatch(typeof(Scp049ResurrectAbility), nameof(Scp049ResurrectAbility.ServerComplete))]
-    internal class ZombiePositionPatch
-    {
-        internal static void Postfix(Scp049ResurrectAbility __instance)
-        {
-            __instance.CurRagdoll.Info.OwnerHub.transform.position = __instance.CurRagdoll.CenterPoint.position + new Vector3(0, 1.2f, 0);
         }
     }
 }
