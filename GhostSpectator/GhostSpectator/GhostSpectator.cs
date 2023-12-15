@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using MEC;
 using PlayerRoles;
 using PluginAPI.Core;
+using UnityEngine;
 
 namespace GhostSpectator
 {
@@ -43,5 +45,12 @@ namespace GhostSpectator
 		}
 
 		public static IEnumerable<Player> List => Player.GetPlayers().Where(x => x.IsGhost());
+
+        internal static IEnumerator<float> CorrectZombiePosition(Player player, Vector3 position)
+        {
+            Timing.WaitUntilTrue(() => player.Role == RoleTypeId.Scp0492);
+            Timing.CallDelayed(0.1f, () => player.Position = position + Vector3.up);
+            yield break;
+        }
     }
 }

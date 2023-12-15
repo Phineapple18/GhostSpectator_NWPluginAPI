@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -41,9 +41,6 @@
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>$(SLMain)\Assembly-CSharp-firstpass.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-Publicized">
-      <HintPath>$(SLDependencies)\Assembly-CSharp-Publicized.dll</HintPath>
     </Reference>
     <Reference Include="CommandSystem.Core">
       <HintPath>$(SLMain)\CommandSystem.Core.dll</HintPath>
@@ -74,10 +71,6 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(SLMain)\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SLMain)\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
     <Reference Include="YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SLMain)\YamlDotNet.dll</HintPath>
@@ -103,7 +96,7 @@
     <Compile Include="Patches\BulletPatch.cs" />
     <Compile Include="Patches\CheckSpawnablePatch.cs" />
     <Compile Include="Patches\FootstepPatch.cs" />
-    <Compile Include="Patches\Scp049Patches.cs" />
+    <Compile Include="Patches\Scp049ResurrectPatch.cs" />
     <Compile Include="Patches\Scp939Patches.cs" />
     <Compile Include="Patches\TeslaPatches.cs" />
     <Compile Include="Patches\VisibilityPatch.cs" />

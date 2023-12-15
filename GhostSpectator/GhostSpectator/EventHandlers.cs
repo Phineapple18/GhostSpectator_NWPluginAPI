@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using InventorySystem.Items.Firearms;
+using MEC;
 using NWAPIPermissionSystem;
 using PlayerRoles;
 using PluginAPI.Core;
@@ -33,7 +34,7 @@ namespace GhostSpectator
 			}
 		}
 
-		[PluginEvent(ServerEventType.PlayerDamage)]
+        [PluginEvent(ServerEventType.PlayerDamage)]
         internal bool OnPlayerDamage(PlayerDamageEvent ev)
 		{
             return !ev.Player.IsGhost();
@@ -142,7 +143,13 @@ namespace GhostSpectator
 			return !ev.Player.IsGhost();
 		}
 
-		[PluginEvent(ServerEventType.Scp096AddingTarget)]
+        [PluginEvent(ServerEventType.Scp049ResurrectBody)]
+        internal void OnScp049ResurrectBody(Scp049ResurrectBodyEvent ev)
+        {
+            Timing.RunCoroutine(GhostSpectator.CorrectZombiePosition(ev.Target, ev.Body.CenterPoint.position));
+        }
+
+        [PluginEvent(ServerEventType.Scp096AddingTarget)]
 		internal bool OnScp096AddingTarget(Scp096AddingTargetEvent ev)
 		{
 			return !ev.Target.IsGhost();
@@ -184,7 +191,7 @@ namespace GhostSpectator
 			}
 		}
 
-		private readonly Config config = Plugin.Singleton.PluginConfig;
+        private readonly Config config = Plugin.Singleton.PluginConfig;
 
         private readonly string pluginName = Plugin.Singleton.pluginHandler.PluginName;
 
