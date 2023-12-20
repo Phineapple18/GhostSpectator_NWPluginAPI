@@ -41,7 +41,7 @@ namespace GhostSpectator
         [Description("Hint shown to a Ghost, if teleport fails.")]
         public string TeleportFail { get; set; } = "There is nobody you can teleport to.";
 
-        [Description("A list of roles that Ghosts cannot be teleported to. Scp079 is already included.")]
+        [Description("List of roles that Ghosts cannot be teleported to. Scp079 is already included.")]
         public List<RoleTypeId> RoleTeleportBlacklist { get; set; } = new List<RoleTypeId>
         {
             RoleTypeId.Tutorial
@@ -65,5 +65,8 @@ namespace GhostSpectator
             { "10, 995, -12", "-10, 996, -4" },
             { "68, 983, -36", "142, 985, -12"}
         };
+
+        [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity, if they have enabled listening to Ghosts.")]
+        public float HearDistance { get; set; } = 10f;
     }
 }

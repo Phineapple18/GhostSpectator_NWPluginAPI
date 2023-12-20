@@ -30,6 +30,7 @@ namespace GhostSpectator
         public void OnEnable()
         {
             _player.TemporaryData.StoredData["IsGhostSpectator"] = "spawned";
+
             _player.PlayerInfo.IsRoleHidden = true;
             _player.PlayerInfo.IsNicknameHidden = true;
             Config config = Plugin.Singleton.PluginConfig;
@@ -58,6 +59,7 @@ namespace GhostSpectator
         public void OnDisable()
         {
             _player.TemporaryData.StoredData["IsGhostSpectator"] = "despawning";
+
             _player.PlayerInfo.IsRoleHidden = false;
             _player.PlayerInfo.IsNicknameHidden = false;
             _player.CustomInfo = string.Empty;

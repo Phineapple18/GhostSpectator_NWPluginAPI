@@ -40,6 +40,12 @@ namespace GhostSpectator
             return !ev.Player.IsGhost();
 		}
 
+        [PluginEvent(ServerEventType.PlayerDamagedWindow)]
+        internal bool OnPlayerDamagedWindow(PlayerDamagedWindowEvent ev)
+		{
+			return !ev.Player.IsGhost();
+		}
+
         [PluginEvent(ServerEventType.PlayerDropItem)]
         internal bool OnPlayerDropItem(PlayerDropItemEvent ev)
 		{
@@ -63,14 +69,11 @@ namespace GhostSpectator
                     }
                     return false;
                 }
-				if (ev.Item.Category == ItemCategory.Firearm)
+				if (!ev.Player.CheckPermission("gs.item"))
 				{
 					ev.Player.RemoveItem(ev.Item);
-                    return true;
                 }
-				return ev.Player.CheckPermission("gs.items");
             }
-
             return true;
 		}
 
@@ -89,7 +92,6 @@ namespace GhostSpectator
                 Log.Debug($"Player {ev.Player.Nickname} left PD as Ghost.", config.Debug, pluginName);
                 return false;
 			}
-
 			return true;
 		}
 
@@ -110,25 +112,33 @@ namespace GhostSpectator
         }
 
         [PluginEvent(ServerEventType.PlayerShotWeapon)]
-        internal void OnPlayerShotWeapon(PlayerShotWeaponEvent ev)
+        internal bool OnPlayerShotWeapon(PlayerShotWeaponEvent ev)
 		{
-			if (ev.Player.IsGhost() && ev.Firearm.Status.Ammo == 0)
+			if (ev.Player.IsGhost())
 			{
-                uint attachments = ev.Firearm.Status.Attachments;
-				ev.Firearm.Status = new FirearmStatus(ev.Firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, attachments);
+				if (ev.Firearm.ItemTypeId == ItemType.ParticleDisruptor)
+				{
+					return ev.Player.CheckPermission("gs.item");
+				}
+				if (ev.Firearm.Status.Ammo == 0)
+				{
+                    uint attachments = ev.Firearm.Status.Attachments;
+                    ev.Firearm.Status = new FirearmStatus(ev.Firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, attachments);
+                }
             }
+			return true;
 		}
 
         [PluginEvent(ServerEventType.PlayerThrowItem)]
 		internal bool OnPlayerThrowItem(PlayerThrowItemEvent ev)
 		{
-			return !ev.Player.IsGhost() || ev.Player.CheckPermission("gs.items");
+			return !ev.Player.IsGhost() || ev.Player.CheckPermission("gs.item");
 		}
 
 		[PluginEvent(ServerEventType.PlayerThrowProjectile)]
 		internal bool OnPlayerThrowProjectile(PlayerThrowProjectileEvent ev)
 		{
-			return !ev.Thrower.IsGhost() || ev.Thrower.CheckPermission("gs.items");
+			return !ev.Thrower.IsGhost() || ev.Thrower.CheckPermission("gs.item");
         }
 
         [PluginEvent(ServerEventType.PlayerUseItem)]
@@ -159,12 +169,6 @@ namespace GhostSpectator
 		internal bool OnScp173NewObserver(Scp173NewObserverEvent ev)
 		{
 			return !ev.Target.IsGhost();
-		}
-
-		[PluginEvent(ServerEventType.Scp173PlaySound)]
-		internal bool OnScp173PlaySound(Scp173PlaySoundEvent ev)
-		{
-			return !ev.Player.IsGhost();
 		}
 
 		[PluginEvent(ServerEventType.Scp914ProcessPlayer)]

@@ -39,12 +39,17 @@ namespace GhostSpectator
 			Log.Debug($"Player {ply.Nickname} was despawned from Ghost.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
 		}
 
+        public static bool IsGhost(this ReferenceHub hub)
+        {
+			return Player.Get(hub).IsGhost();
+        }
+
         public static bool IsGhost(this Player player)
 		{
 			return player != null && player.TemporaryData.StoredData.Any(kvp => kvp.Key == "IsGhostSpectator" && (string)kvp.Value == "spawned");
 		}
 
-		public static IEnumerable<Player> List => Player.GetPlayers().Where(x => x.IsGhost());
+        public static IEnumerable<Player> List => Player.GetPlayers().Where(x => x.IsGhost());
 
         internal static IEnumerator<float> CorrectZombiePosition(Player player, Vector3 position)
         {
