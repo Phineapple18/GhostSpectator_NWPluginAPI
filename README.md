@@ -11,11 +11,12 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 - Depending on the assigned permissions, Ghosts can:
   * noclip
   * spawn themselves a shooting target and give themselves a firearm - a firearm will be automatically refilled, when emptied
-  * listen to Ghosts, SCP or Spectator chat
+  * listen to SCP and Spectators chats
+  * listen to other Ghosts via RoundSummary chat, if they are not in the Proximity chat or far enough (distance can be set in the config)
 
-## Required plugins and dependencies (1.0.5): 
+## Required plugins and dependencies (1.0.6): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
-- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to the release)
+- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to previous release)
 
 ## Config
 |Name|Type|Default value|Description|
@@ -36,6 +37,7 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
 |target_limit|int|1|How many shooting targets can one Ghost have spawned?|
 |shooting_areas|Dictionary\<string, string\>| 10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.|
+|hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity, if they have enabled listening to Ghosts.|
 
 ## Command translations
 Translations for commands are in separate file "commandtranslation.yml", in the same folder as the config file. You can translate a command, its description and aliases, and all command responses. 
@@ -54,7 +56,7 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 
 ## Permissions
 - gs.firearm - allows a Ghost to give themselves a firearm
-- gs.items - allows a Ghost to drop or throw items
+- gs.item - allows a Ghost to drop or throw items
 - gs.listen.dead - allows a Ghost to hear Spectators
 - gs.listen.ghost - allows a Ghost to hear other Ghosts, if they are not in proximity
 - gs.listen.scp - allows a Ghost to hear SCPs
