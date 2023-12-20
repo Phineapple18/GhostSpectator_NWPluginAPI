@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HarmonyLib;
-using PluginAPI.Core;
 using Respawning;
 
 namespace GhostSpectator.Patches
@@ -15,7 +14,7 @@ namespace GhostSpectator.Patches
     {
         internal static void Postfix(RespawnManager __instance, ReferenceHub ply, ref bool __result)
         {
-            if (Player.Get(ply).IsGhost())
+            if (ply.IsGhost())
             {
                 __result = true;
             }

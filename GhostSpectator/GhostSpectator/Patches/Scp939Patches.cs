@@ -7,10 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HarmonyLib;
+using InventorySystem.Items;
 using NorthwoodLib.Pools;
 using PlayerRoles.PlayableScps.Scp939;
 using PlayerRoles.PlayableScps.Scp939.Ripples;
-using PluginAPI.Core;
 
 namespace GhostSpectator.Patches
 {
@@ -19,10 +19,38 @@ namespace GhostSpectator.Patches
 	{
 		internal static bool Prefix(Scp939AmnesticCloudInstance __instance, ReferenceHub player)
 		{
-			return !Player.Get(player).IsGhost();
-		}
-	}
+            return !player.IsGhost();
+        }
+    }
 
+    [HarmonyPatch(typeof(FirearmRippleTrigger), "OnServerSoundPlayed")]
+    internal class FirearmRipplePatch
+    {
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
+
+            Label returnLabel = generator.DefineLabel();
+
+            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(ItemBase), "Owner"));
+            
+            newInstructions.InsertRange(index, new List<CodeInstruction>
+            {
+                new (OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), "Owner")),
+                new (OpCodes.Call, AccessTools.Method(typeof(GhostSpectator), nameof(GhostSpectator.IsGhost), new Type[] {typeof(ReferenceHub)})),
+                new (OpCodes.Brtrue_S, returnLabel),
+                new (OpCodes.Ldarg_1),
+            });
+
+            newInstructions[newInstructions.Count - 1].WithLabels(returnLabel);
+            for (int i = 0; i < newInstructions.Count; i++)
+            {
+                yield return newInstructions[i];
+            }
+
+            ListPool<CodeInstruction>.Shared.Return(newInstructions);
+        }
+    }
 
     [HarmonyPatch(typeof(SurfaceRippleTrigger), "LateUpdate")]
     internal class SurfaceRipplePatch
@@ -40,7 +68,7 @@ namespace GhostSpectator.Patches
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
                 new (OpCodes.Ldloc_1),
-               	new (OpCodes.Call, AccessTools.Method(typeof(SurfaceRipplePatch), nameof(IsGhost), new Type[] {typeof(ReferenceHub)})),
+                new (OpCodes.Call, AccessTools.Method(typeof(GhostSpectator), nameof(GhostSpectator.IsGhost), new Type[] {typeof(ReferenceHub)})),
                 new (OpCodes.Brtrue, moveNext)
             });
 
@@ -50,11 +78,6 @@ namespace GhostSpectator.Patches
             }
 
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
-        }
-
-        private static bool IsGhost(ReferenceHub hub)
-        {
-            return Player.Get(hub).IsGhost();
         }
     }
 }

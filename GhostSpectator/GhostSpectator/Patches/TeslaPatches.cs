@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HarmonyLib;
-using PluginAPI.Core;
 
 namespace GhostSpectator.Patches
 {
@@ -14,7 +13,7 @@ namespace GhostSpectator.Patches
     {
         internal static void Postfix(TeslaGate __instance, ReferenceHub player, ref bool __result)
         {
-            if (Player.Get(player).IsGhost())
+            if (player.IsGhost())
             {
                 __result = false;
             }
@@ -26,7 +25,7 @@ namespace GhostSpectator.Patches
     {
         internal static void Postfix(TeslaGate __instance, ReferenceHub player, ref bool __result)
         {
-            if (Player.Get(player).IsGhost())
+            if (player.IsGhost())
             {
                 __result = false;
             }

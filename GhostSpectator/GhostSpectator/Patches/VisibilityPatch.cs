@@ -12,7 +12,6 @@ using PlayerRoles.FirstPersonControl.NetworkMessages;
 using PlayerRoles.Visibility;
 using PlayerRoles.Spectating;
 using PlayerRoles;
-using PluginAPI.Core;
 
 namespace GhostSpectator.Patches
 {
@@ -42,29 +41,26 @@ namespace GhostSpectator.Patches
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
 
-        private static void IsGhostInvisible(ReferenceHub receiver, ReferenceHub referenceHub, ref bool isInvisible)
+        private static void IsGhostInvisible(ReferenceHub observer, ReferenceHub observed, ref bool isInvisible)
         {
-            Player observer = Player.Get(receiver);
-            Player target = Player.Get(referenceHub);
-
-            if (target.IsGhost())
+            if (observed.IsGhost())
             {
-                if (observer.IsGhost() || observer.Role == RoleTypeId.Overwatch)
+                if (observer.IsGhost() || observer.GetRoleId() == RoleTypeId.Overwatch)
                 {
                     isInvisible = false;
                     return;
                 }
-                if (observer.IsAlive)
+                if (observer.IsAlive())
                 {
                     isInvisible = true;
                     return;
                 }
-                if (observer.Role == RoleTypeId.Filmmaker)
+                if (observer.GetRoleId() == RoleTypeId.Filmmaker)
                 {
                     isInvisible = !Plugin.Singleton.PluginConfig.FilmmakerSeeGhosts;
                     return;
                 }
-                Player spectated = Player.GetPlayers().FirstOrDefault(p => p.ReferenceHub.IsSpectatedBy(observer.ReferenceHub));
+                ReferenceHub spectated = ReferenceHub.AllHubs.FirstOrDefault(p => p.IsSpectatedBy(observer));
                 isInvisible = !(spectated.IsGhost() || Plugin.Singleton.PluginConfig.AlwaysSeeGhosts);
             }
         }

@@ -10,6 +10,7 @@ using PlayerRoles.Voice;
 using PluginAPI.Core;
 using System.Reflection;
 using System.Reflection.Emit;
+using UnityEngine;
 using VoiceChat;
 using VoiceChat.Networking;
 
@@ -44,21 +45,20 @@ namespace GhostSpectator.Patches
 
         private static void OverrideVoicechannel(ReferenceHub hub1, ReferenceHub hub2, ref VoiceChatChannel voiceChatChannel2)
         {
-            Player receiver = Player.Get(hub1);
-            if (hub1 == hub2 || Round.IsRoundEnded || !receiver.IsGhost())
+            if (hub1 == hub2 || Round.IsRoundEnded || !hub1.IsGhost())
             {
                 return;
             }
+            Player receiver = Player.Get(hub1);
             Player sender = Player.Get(hub2);
             if (receiver.TemporaryData.StoredData.Keys.Any(s => s == $"Vc{sender.VoiceChannel}"))
             {
                 voiceChatChannel2 = sender.VoiceChannel;
                 return;
             }
-            if (sender.IsGhost() && receiver.TemporaryData.Contains("ListenGhosts") && voiceChatChannel2 != VoiceChatChannel.Proximity)
+            if (sender.IsGhost() && receiver.TemporaryData.Contains("ListenGhosts") && (voiceChatChannel2 != VoiceChatChannel.Proximity || Vector3.Distance(sender.Position, receiver.Position) > Plugin.Singleton.PluginConfig.HearDistance))
             {
                 voiceChatChannel2 = VoiceChatChannel.RoundSummary;
-                return;
             }
         }
     }
