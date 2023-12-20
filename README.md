@@ -56,7 +56,7 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 
 ## Permissions
 - gs.firearm - allows a Ghost to give themselves a firearm
-- gs.item - allows a Ghost to drop or throw items
+- gs.item - allows a Ghost to drop and throw items and use Particle Disruptor
 - gs.listen.dead - allows a Ghost to hear Spectators
 - gs.listen.ghost - allows a Ghost to hear other Ghosts, if they are not in proximity
 - gs.listen.scp - allows a Ghost to hear SCPs
@@ -64,7 +64,7 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 - gs.spawn.others - allows a player to (de)spawn any player to and from Ghost
 - gs.spawn.self - allows a player to (de)spawn themselves to and from Ghost
 - gs.target - allows a player to (de)spawn their shooting target
-- gs.warhead - allows a player to (de)spawn themselves or others to and from Ghost after warhead detonation
+- gs.warhead - allows a player to (de)spawn themselves and others to and from Ghost after warhead detonation
 
 ## Credits
 - Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
