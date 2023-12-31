@@ -46,7 +46,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.SenderNull;
                 return false;
             }
-            if (!sender.CheckPermission("gs.spawn.others"))
+            if (!sender.CheckPermission("gs.spawn.player"))
 			{
 				response = translation.NoPerms;
 				return false;
