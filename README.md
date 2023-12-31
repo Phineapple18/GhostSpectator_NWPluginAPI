@@ -14,9 +14,9 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
   * listen to SCP and Spectators chats
   * listen to other Ghosts via RoundSummary chat, if they are not in the Proximity chat or far enough (distance can be set in the config)
 
-## Required plugins and dependencies (1.0.6): 
+## Required plugins and dependencies (1.1.0): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
-- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to previous release)
+- [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
 
 ## Config
 |Name|Type|Default value|Description|
@@ -61,7 +61,7 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 - gs.listen.ghost - allows a Ghost to hear other Ghosts, if they are not in proximity
 - gs.listen.scp - allows a Ghost to hear SCPs
 - gs.noclip - allows a Ghost to have noclip enabled
-- gs.spawn.others - allows a player to (de)spawn any player to and from Ghost
+- gs.spawn.player - allows a player to (de)spawn any player to and from Ghost
 - gs.spawn.self - allows a player to (de)spawn themselves to and from Ghost
 - gs.target - allows a player to (de)spawn their shooting target
 - gs.warhead - allows a player to (de)spawn themselves and others to and from Ghost after warhead detonation
