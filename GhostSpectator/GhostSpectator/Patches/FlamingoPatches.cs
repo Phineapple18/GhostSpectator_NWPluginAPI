@@ -1,0 +1,66 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text;
+using System.Threading.Tasks;
+
+using Christmas.Scp2536.Gifts;
+using HarmonyLib;
+using InventorySystem.Items.FlamingoTapePlayer;
+using Mirror;
+using NorthwoodLib.Pools;
+using PlayerRoles.PlayableScps.Scp1507;
+
+namespace GhostSpectator.Patches
+{
+    [HarmonyPatch(typeof(Scp1507Spawner), "ValidatePlayer")]
+    internal class FlamingoCheckSpawnablePatch
+    {
+        internal static void Postfix(ReferenceHub candidate, ref bool __result)
+        {
+            if (candidate.IsGhost())
+            {
+                __result = true;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Tape), nameof(Tape.CanBeGranted))]
+    internal class GrantTapePatch
+    {
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
+
+            Label checkNext = generator.DefineLabel();
+            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloc_0).ElementAt(0).labels.Add(checkNext);
+
+            int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Isinst);
+            int offset = 1;
+
+            newInstructions.InsertRange(index + offset, new List<CodeInstruction>
+            {
+                new (OpCodes.Brtrue_S, checkNext),
+                new (OpCodes.Ldloc_S, 4),
+                new (OpCodes.Call, AccessTools.Method(typeof(GhostSpectator), nameof(GhostSpectator.IsGhost), new Type[] {typeof(ReferenceHub)})),
+            });
+
+            for (int i = 0; i < newInstructions.Count; i++)
+            {
+                yield return newInstructions[i];
+            }
+
+            ListPool<CodeInstruction>.Shared.Return(newInstructions);
+        }
+    }
+
+    [HarmonyPatch(typeof(TapeItem), nameof(TapeItem.ServerProcessCmd))]
+    internal class UseTapePatch
+    {
+        internal static bool Prefix(TapeItem __instance, NetworkReader reader)
+        {
+            return !__instance.Owner.IsGhost();
+        }
+    }
+}
