@@ -23,7 +23,7 @@ namespace GhostSpectator
         [PluginConfig] public Config PluginConfig;
 
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.0.6", null, "Phineapple18")]
+		[PluginEntryPoint("GhostSpectator", "1.1.0", null, "Phineapple18")]
 		public void OnLoad()
 		{
 			if (!PluginConfig.IsEnabled)
@@ -38,7 +38,7 @@ namespace GhostSpectator
             this.harmony = new Harmony(string.Format("ghostspectator.{0}", DateTime.UtcNow.Ticks));
             this.harmony.PatchAll();
             Log.Info($"Loaded plugin {pluginHandler.PluginName} by {pluginHandler.PluginAuthor}.", pluginHandler.PluginName);
-		}
+        }
 
         public void GetSpawnPoints(CultureInfo dot)
         {

@@ -95,6 +95,7 @@
     <Compile Include="GhostSpectator.cs" />
     <Compile Include="Patches\BulletPatch.cs" />
     <Compile Include="Patches\CheckSpawnablePatch.cs" />
+    <Compile Include="Patches\FlamingoPatches.cs" />
     <Compile Include="Patches\FootstepPatch.cs" />
     <Compile Include="Patches\Scp049ResurrectPatch.cs" />
     <Compile Include="Patches\Scp939Patches.cs" />
