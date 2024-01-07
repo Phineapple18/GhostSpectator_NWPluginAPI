@@ -12,7 +12,7 @@ namespace GhostSpectator.Patches
     [HarmonyPatch(typeof(RespawnManager), "CheckSpawnable")]
     internal class CheckSpawnablePatch
     {
-        internal static void Postfix(RespawnManager __instance, ReferenceHub ply, ref bool __result)
+        internal static void Postfix(ReferenceHub ply, ref bool __result)
         {
             if (ply.IsGhost())
             {

@@ -21,7 +21,6 @@ namespace GhostSpectator.Patches
 
             Label checkNext = generator.DefineLabel();
             newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_0).ElementAt(3).labels.Add(checkNext);
-
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Isinst);
             int offset = 1;
 

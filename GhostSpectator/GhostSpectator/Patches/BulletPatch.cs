@@ -19,14 +19,13 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label returnLabel = generator.DefineLabel();
-
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Ldarga_S);
 
             newInstructions.InsertRange(index, new List<CodeInstruction>
             {
                 new (OpCodes.Ldarg_0),
                 new (OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(StandardHitregBase), "Hub")),
-                new (OpCodes.Call, AccessTools.Method(typeof(GhostSpectator), nameof(GhostSpectator.IsGhost), new[] { typeof(ReferenceHub)})),
+                new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new[] { typeof(ReferenceHub)})),
                 new (OpCodes.Brtrue, returnLabel)
             });
 

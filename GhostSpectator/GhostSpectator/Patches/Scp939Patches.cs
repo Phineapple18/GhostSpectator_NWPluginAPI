@@ -17,7 +17,7 @@ namespace GhostSpectator.Patches
 	[HarmonyPatch(typeof(Scp939AmnesticCloudInstance), nameof(Scp939AmnesticCloudInstance.OnStay))]
 	internal class AmnesticCloudPatch
 	{
-		internal static bool Prefix(Scp939AmnesticCloudInstance __instance, ReferenceHub player)
+		internal static bool Prefix(ReferenceHub player)
 		{
             return !player.IsGhost();
         }
@@ -31,13 +31,12 @@ namespace GhostSpectator.Patches
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
             Label returnLabel = generator.DefineLabel();
-
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(ItemBase), "Owner"));
             
             newInstructions.InsertRange(index, new List<CodeInstruction>
             {
                 new (OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), "Owner")),
-                new (OpCodes.Call, AccessTools.Method(typeof(GhostSpectator), nameof(GhostSpectator.IsGhost), new Type[] {typeof(ReferenceHub)})),
+                new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new Type[] {typeof(ReferenceHub)})),
                 new (OpCodes.Brtrue_S, returnLabel),
                 new (OpCodes.Ldarg_1),
             });
@@ -61,14 +60,13 @@ namespace GhostSpectator.Patches
 
             Label moveNext = generator.DefineLabel();
             newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloca_S).ElementAt(5).labels.Add(moveNext);
-
 			int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Ldfld && (FieldInfo)i.operand == AccessTools.Field(typeof(ReferenceHub), nameof(ReferenceHub.playerEffectsController)));
             int offset = -1;
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
                 new (OpCodes.Ldloc_1),
-                new (OpCodes.Call, AccessTools.Method(typeof(GhostSpectator), nameof(GhostSpectator.IsGhost), new Type[] {typeof(ReferenceHub)})),
+                new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new Type[] {typeof(ReferenceHub)})),
                 new (OpCodes.Brtrue, moveNext)
             });
 
