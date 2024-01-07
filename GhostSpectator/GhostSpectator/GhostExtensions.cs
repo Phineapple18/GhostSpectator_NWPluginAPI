@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace GhostSpectator
 {
-    public static class GhostSpectator
+    public static class GhostExtensions
     {
 		public static void Spawn(Player ply)
 		{
@@ -25,10 +25,10 @@ namespace GhostSpectator
 			{
                 ply.GameObject.AddComponent<GhostComponent>();
             }
-            Log.Debug($"Player {ply.Nickname} was turned into Ghost.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            Log.Debug($"Player {ply.Nickname} was turned into a Ghost.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
 		}
 
-		public static void Despawn(Player ply, bool forceToSpectator = false)
+		public static void Despawn(Player ply, bool forceToSpectator = true)
 		{
             ply.GameObject.GetComponent<GhostComponent>().enabled = false;
 			if (forceToSpectator)
@@ -36,7 +36,7 @@ namespace GhostSpectator
 				ply.SetRole(RoleTypeId.Spectator, RoleChangeReason.RemoteAdmin);
 			}
 			ply.TemporaryData.Remove("IsGhostSpectator");
-			Log.Debug($"Player {ply.Nickname} was despawned from Ghost.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+			Log.Debug($"Player {ply.Nickname} is no longer a Ghost.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
 		}
 
         public static bool IsGhost(this ReferenceHub hub)
