@@ -87,9 +87,9 @@ namespace GhostSpectator.Commands
 
         public string AvailableFirearms { get; set; } = "Available firearms";
 
-        public string GhostList { get; set; } = "List of Ghosts";
+        public string GhostList { get; set; } = "List of Ghosts <color=red>(%num%)</color>";
 
-        public string TargetList { get; set; } = "List of spawned targets";
+        public string TargetList { get; set; } = "List of spawned targets <color=red>(%num%)</color>";
 
         public string SenderNull { get; set; } = "Commandsender is null.";
 
@@ -129,7 +129,7 @@ namespace GhostSpectator.Commands
 
         public string DespawnSuccess { get; set; } = "Succesfully despawned <color=green>%num%</color> existing player(s) from Ghosts";
 
-        public string DespawnFail { get; set; } = "Command failed for <color=red>%num%</color> existing player(s) (not a Ghost)";
+        public string DespawnFail { get; set; } = "Command failed for <color=red>%num%</color> existing player(s) (not a Ghost or a Dedicated Server)";
 
         public string DestroytargetSuccess { get; set; } = "You have despawned your shooting target.";
 
@@ -151,18 +151,20 @@ namespace GhostSpectator.Commands
 
         public string SpawnSuccess { get; set; } = "Succesfully turned <color=green>%num%</color> existing player(s) into Ghosts";
 
-        public string SpawnFail { get; set; } = "Command failed for <color=red>%num%</color> existing player(s) (already a Ghost)";
+        public string SpawnFail { get; set; } = "Command failed for <color=red>%num%</color> existing player(s) (already a Ghost or a Dedicated Server)";
 
         internal static CommandTranslation PrepareTranslations()
         {
-            string path = File.Exists(globalDll) ? globalTranslation : localTranslation;
-            if (!File.Exists(path))
+            string directoryPath = File.Exists(globalDll) ? globalTranslation : localTranslation;
+            string filePath = Path.Combine(directoryPath, fileName);
+            if (!File.Exists(filePath))
             {
-                File.WriteAllText(path, YamlParser.Serializer.Serialize(new CommandTranslation()));
+                Directory.CreateDirectory(directoryPath);
+                File.WriteAllText(filePath, YamlParser.Serializer.Serialize(new CommandTranslation()));
             }
-            CommandTranslation translation = YamlParser.Deserializer.Deserialize<CommandTranslation>(File.ReadAllText(path));
+            CommandTranslation translation = YamlParser.Deserializer.Deserialize<CommandTranslation>(File.ReadAllText(filePath));
             loadedTranslation = translation;
-            File.WriteAllText(path, YamlParser.Serializer.Serialize(translation));
+            File.WriteAllText(filePath, YamlParser.Serializer.Serialize(translation));
             return translation;   
         }
 
@@ -176,8 +178,10 @@ namespace GhostSpectator.Commands
 
         private static readonly string globalDll = Path.Combine(Paths.GlobalPlugins.Plugins, "GhostSpectator.dll");
 
-        private static readonly string globalTranslation = Path.Combine(Paths.GlobalPlugins.Plugins, "GhostSpectator", "commandtranslation.yml");
+        private static readonly string globalTranslation = Path.Combine(Paths.GlobalPlugins.Plugins, "GhostSpectator");//, "commandtranslation.yml");
 
-        private static readonly string localTranslation = Path.Combine(Paths.LocalPlugins.Plugins, "GhostSpectator", "commandtranslation.yml");
+        private static readonly string localTranslation = Path.Combine(Paths.LocalPlugins.Plugins, "GhostSpectator");//, "commandtranslation.yml");
+
+        private static readonly string fileName = "commandtranslation.yml";
     }
 }
