@@ -178,9 +178,9 @@ namespace GhostSpectator.Commands
 
         private static readonly string globalDll = Path.Combine(Paths.GlobalPlugins.Plugins, "GhostSpectator.dll");
 
-        private static readonly string globalTranslation = Path.Combine(Paths.GlobalPlugins.Plugins, "GhostSpectator");//, "commandtranslation.yml");
+        private static readonly string globalTranslation = Path.Combine(Paths.GlobalPlugins.Plugins, "GhostSpectator");
 
-        private static readonly string localTranslation = Path.Combine(Paths.LocalPlugins.Plugins, "GhostSpectator");//, "commandtranslation.yml");
+        private static readonly string localTranslation = Path.Combine(Paths.LocalPlugins.Plugins, "GhostSpectator");
 
         private static readonly string fileName = "commandtranslation.yml";
     }
