@@ -69,7 +69,6 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
-            //validHubs.Remove(validHubs.FirstOrDefault(h => h.isLocalPlayer));
             StringBuilder success = StringBuilderPool.Shared.Rent();
             StringBuilder failure = StringBuilderPool.Shared.Rent();
             success.AppendLine($"{translation.SpawnSuccess}:");
