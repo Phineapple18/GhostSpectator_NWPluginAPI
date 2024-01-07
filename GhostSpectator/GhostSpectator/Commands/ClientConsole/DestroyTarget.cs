@@ -70,7 +70,7 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.TargetList}: {string.Join("\n- ", from id in component.shootingTargets select id.Key)}.";
+                response = $"{translation.TargetList.Replace("%num%", component.shootingTargets.Count().ToString())}:\n- {string.Join("\n- ", from id in component.shootingTargets select id.Key)}";
                 return false;
             }
             if (!uint.TryParse(arguments.At(0), out uint targetid))

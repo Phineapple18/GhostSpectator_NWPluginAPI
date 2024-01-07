@@ -57,13 +57,13 @@ namespace GhostSpectator.Commands.ClientConsole
             Player commandsender = Player.Get(sender);
             if (commandsender.IsGhost())
 			{
-				GhostSpectator.Despawn(commandsender, true);
+				GhostExtensions.Despawn(commandsender);
                 response = translation.SelfSpec;
                 return true;
 			}
 			if (commandsender.Role == RoleTypeId.Spectator)
 			{
-				GhostSpectator.Spawn(commandsender);
+				GhostExtensions.Spawn(commandsender);
                 response = translation.SelfGhost;
                 return true;
 			}
