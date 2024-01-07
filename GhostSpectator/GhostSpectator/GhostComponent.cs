@@ -29,17 +29,16 @@ namespace GhostSpectator
 
         public void OnEnable()
         {
-            _player.TemporaryData.StoredData["IsGhostSpectator"] = "spawned";
-
-            _player.PlayerInfo.IsRoleHidden = true;
-            _player.PlayerInfo.IsNicknameHidden = true;
             Config config = Plugin.Singleton.PluginConfig;
+
+            _player.TemporaryData.StoredData["IsGhostSpectator"] = "spawned";
+            _player.PlayerInfo.IsRoleHidden = true;
+            _player.PlayerInfo.IsNicknameHidden = true;            
             _player.CustomInfo = $"<color={config.GhostColor}>{_player.Nickname}\n{config.GhostNickname}</color>";
 
             _player.Position = Plugin.spawnPositions.ElementAt(new System.Random().Next(Plugin.spawnPositions.Count));
             _player.IsGodModeEnabled = true;  
-            _player.Health = 64057f;
-            _player.ReferenceHub.interCoordinator.AddBlocker(this);           
+            _player.Health = 64057f;        
             _player.EffectsManager.EnableEffect<Scp207>();
             Timing.CallDelayed(0.1f, () => _player.EffectsManager.EnableEffect<Ghostly>());
             if (_player.CheckPermission("gs.noclip") && !FpcNoclip.IsPermitted(_player.ReferenceHub))
@@ -47,6 +46,7 @@ namespace GhostSpectator
                 FpcNoclip.PermitPlayer(_player.ReferenceHub);
             }
 
+            _player.ReferenceHub.interCoordinator.AddBlocker(this);
             _player.AddItem(config.TeleportItem);
             if (!string.IsNullOrWhiteSpace(config.Spawnmessage))
             {
@@ -59,15 +59,14 @@ namespace GhostSpectator
         public void OnDisable()
         {
             _player.TemporaryData.StoredData["IsGhostSpectator"] = "despawning";
-
             _player.PlayerInfo.IsRoleHidden = false;
             _player.PlayerInfo.IsNicknameHidden = false;
             _player.CustomInfo = string.Empty;
 
+            _player.ClearInventory();
             _player.EffectsManager.DisableAllEffects();
             _player.IsGodModeEnabled = false;
             _player.Health = 100f;
-            _player.ClearInventory();
             if (_player.CheckPermission("gs.noclip") && FpcNoclip.IsPermitted(_player.ReferenceHub))
             {
                 FpcNoclip.UnpermitPlayer(_player.ReferenceHub);

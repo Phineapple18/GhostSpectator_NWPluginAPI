@@ -30,7 +30,7 @@ namespace GhostSpectator
 		{
 			if (ev.Player.IsGhost())
 			{
-				GhostSpectator.Despawn(ev.Player);
+				GhostExtensions.Despawn(ev.Player, false);
 			}
 		}
 
@@ -65,7 +65,7 @@ namespace GhostSpectator
                         ev.Player.Position = target.Position + Vector3.up;
 						string message = config.TeleportSuccess.Replace("%player%", target.Nickname);
                         ev.Player.ReceiveHint(message, 3f);
-                        Log.Debug($"Player {ev.Player.Nickname} teleported to {target.Nickname}.", config.Debug, pluginName);
+                        Log.Debug($"Ghost {ev.Player.Nickname} was teleported to player {target.Nickname}.", config.Debug, pluginName);
                     }
                     return false;
                 }
@@ -89,7 +89,7 @@ namespace GhostSpectator
 			if (ev.Player.IsGhost())
 			{
 				ev.Player.Position = Plugin.spawnPositions.ElementAt(random.Next(Plugin.spawnPositions.Count));
-                Log.Debug($"Player {ev.Player.Nickname} left PD as Ghost.", config.Debug, pluginName);
+                Log.Debug($"Player {ev.Player.Nickname} left a Pocket Dimension as a Ghost.", config.Debug, pluginName);
                 return false;
 			}
 			return true;
@@ -101,7 +101,7 @@ namespace GhostSpectator
             if (ev.Player.TryGetComponent<GhostComponent>(out GhostComponent ghostComponent))
             {
                 UnityEngine.Object.Destroy(ghostComponent);
-                Log.Debug($"Destroyed GhostComponent for {ev.Player.Nickname}.", config.Debug, pluginName);
+                Log.Debug($"Destroyed a GhostComponent for {ev.Player.Nickname}.", config.Debug, pluginName);
             }
         }
 
@@ -156,7 +156,7 @@ namespace GhostSpectator
         [PluginEvent(ServerEventType.Scp049ResurrectBody)]
         internal void OnScp049ResurrectBody(Scp049ResurrectBodyEvent ev)
         {
-            Timing.RunCoroutine(GhostSpectator.CorrectZombiePosition(ev.Target, ev.Body.CenterPoint.position));
+            Timing.RunCoroutine(GhostExtensions.CorrectZombiePosition(ev.Target, ev.Body.CenterPoint.position));
         }
 
         [PluginEvent(ServerEventType.Scp096AddingTarget)]
@@ -188,9 +188,9 @@ namespace GhostSpectator
 		{
 			if (config.DespawnOnDetonation)
 			{
-				foreach (Player ghost in from g in GhostSpectator.List where !g.CheckPermission("gs.warhead") select g)
+				foreach (Player ghost in from g in GhostExtensions.List where !g.CheckPermission("gs.warhead") select g)
 				{
-					GhostSpectator.Despawn(ghost, true);
+					GhostExtensions.Despawn(ghost);
 				}
 			}
 		}

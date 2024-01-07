@@ -23,7 +23,7 @@ namespace GhostSpectator
         [PluginConfig] public Config PluginConfig;
 
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.1.0", null, "Phineapple18")]
+		[PluginEntryPoint("GhostSpectator", "1.1.1", null, "Phineapple18")]
 		public void OnLoad()
 		{
 			if (!PluginConfig.IsEnabled)
@@ -35,7 +35,7 @@ namespace GhostSpectator
             EventManager.RegisterEvents<EventHandlers>(this);
             this.GetSpawnPoints(CultureInfo.InvariantCulture);
             this.GetShootingAreas(CultureInfo.InvariantCulture);
-            this.harmony = new Harmony(string.Format("ghostspectator.{0}", DateTime.UtcNow.Ticks));
+            this.harmony = new Harmony($"ghostspectator.{DateTime.UtcNow.Ticks}");
             this.harmony.PatchAll();
             Log.Info($"Loaded plugin {pluginHandler.PluginName} by {pluginHandler.PluginAuthor}.", pluginHandler.PluginName);
         }
@@ -78,7 +78,7 @@ namespace GhostSpectator
                 }
                 catch (Exception)
                 {
-                    Log.Debug($"At least one of the coordinates is in invalid format ({string1}) ({string2}).", PluginConfig.Debug, pluginHandler.PluginName);
+                    Log.Debug($"At least one of the shooting area coordinates is in invalid format ({area.Key}) ({area.Value}).", PluginConfig.Debug, pluginHandler.PluginName);
                     continue;
                 }
                 shootingAreas.Add(new Bounds((vector1 + vector2) * 0.5f, (vector1 - vector2).Abs()));
