@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using NorthwoodLib.Pools;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 using Utils;
@@ -56,7 +57,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 				response = $"{translation.Usage}: {this.DisplayCommandUsage()}.";
 				return false;
 			}
-            int index = bool.TryParse(arguments.At(0), out bool tutorial) ? 1 : 0;
+            int index = bool.TryParse(arguments.At(0), out bool toTutorial) ? 1 : 0;
             List<ReferenceHub> validHubs = arguments.At(index).ToLower() == "all" ? ReferenceHub.AllHubs.ToList() : RAUtils.ProcessPlayerIdOrNamesList(arguments, index, out string[] array);
             if (validHubs.IsEmpty())
             {
@@ -68,28 +69,32 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
-            StringBuilder success = new ($"{translation.DespawnSuccess}: ");
-            StringBuilder failure = new ($"{translation.DespawnFail}: ");
+            //validHubs.Remove(validHubs.FirstOrDefault(h => h.isLocalPlayer));
+            StringBuilder success = StringBuilderPool.Shared.Rent();
+            StringBuilder failure = StringBuilderPool.Shared.Rent();
+            success.AppendLine($"{translation.SpawnSuccess}:");
+            failure.AppendLine($"{translation.SpawnFail}:");
+            int numS = 0;
+            int numF = 0;
             foreach (ReferenceHub hub in validHubs)
             {
                 Player player = Player.Get(hub);
-                if (player.IsServer)
+                if (player.IsServer || !player.IsGhost())
                 {
+                    failure.AppendLine($"- {player.Nickname}");
+                    numF++;
                     continue;
                 }
-                if (!player.IsGhost())
-                {
-                    failure.Append($"{player.Nickname}|");
-                    continue;
-                }
-                GhostSpectator.Despawn(player, !tutorial);
-                success.Append($"{player.Nickname}|");
+                GhostExtensions.Despawn(player, !toTutorial);
+                success.AppendLine($"- {player.Nickname}");
+                numS++;
             }
-            success.Replace("%num%", success.ToString().Count(c => c.Equals('|')).ToString());
-            failure.Replace("%num%", failure.ToString().Count(c => c.Equals('|')).ToString());
+            success.Replace("%num%", numS.ToString());
+            failure.Replace("%num%", numF.ToString());
 
-			response = success.AppendLine().Append(failure).ToString();
-            string debug = Regex.Replace(response, "<.*?>", "").Replace(Environment.NewLine, "| ");
+            StringBuilder result = numS == 0 ? failure : numF == 0 ? success : success.Append(failure);
+            response = StringBuilderPool.Shared.ToStringReturn(result).TrimEnd(Array.Empty<char>());
+            string debug = Regex.Replace(response, "<.*?>", "").Replace("- ", "").Replace(Environment.NewLine, ". ");
             Log.Debug($"{debug}", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.Despawn");
             return true;
 		}

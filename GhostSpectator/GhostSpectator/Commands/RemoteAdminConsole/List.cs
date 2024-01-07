@@ -30,8 +30,8 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 				response = CommandTranslation.loadedTranslation.NotEnabled;
 				return false;
 			}
-            response = $"{CommandTranslation.loadedTranslation.GhostList}:" + string.Join("\n- ", from player in GhostSpectator.List select player.Nickname);
-			return true;
+            response = $"{CommandTranslation.loadedTranslation.GhostList.Replace("%num%", GhostExtensions.List.Count().ToString())}:\n- {string.Join("\n- ", from player in GhostExtensions.List select player.Nickname)}";
+            return true;
 		}
 
         internal static readonly string _command = "list";

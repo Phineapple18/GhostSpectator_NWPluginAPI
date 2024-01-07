@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using Discord;
+using NorthwoodLib.Pools;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 using Utils;
@@ -66,7 +68,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 return false;
 			}
 			List<ReferenceHub> validHubs = arguments.At(0).ToLower() == "all" ? ReferenceHub.AllHubs.ToList() : RAUtils.ProcessPlayerIdOrNamesList(arguments, 0, out string[] array);
-			if (validHubs.IsEmpty())
+            if (validHubs.IsEmpty())
 			{
                 response = translation.NoPlayers;
                 return false;
@@ -76,28 +78,32 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
-            StringBuilder success = new ($"{translation.SpawnSuccess}: ");
-            StringBuilder failure = new ($"{translation.SpawnFail}: ");
+            //validHubs.Remove(validHubs.FirstOrDefault(h => h.isLocalPlayer));
+            StringBuilder success = StringBuilderPool.Shared.Rent(); 
+            StringBuilder failure = StringBuilderPool.Shared.Rent();
+            success.AppendLine($"{translation.SpawnSuccess}:");
+            failure.AppendLine($"{translation.SpawnFail}:");
+            int numS = 0;
+            int numF = 0;
             foreach (ReferenceHub hub in validHubs)
 			{
 				Player player = Player.Get(hub);
-				if (player.IsServer)
-				{
-					continue;
-				}
-                if (player.IsGhost())
+                if (player.IsServer || player.IsGhost())
                 {
-                    failure.Append($"{player.Nickname}|");
+                    failure.AppendLine($"- {player.Nickname}");
+                    numF++;
                     continue;
                 }
-                GhostSpectator.Spawn(player);
-                success.Append($"{player.Nickname}|");
+                GhostExtensions.Spawn(player);
+                success.AppendLine($"- {player.Nickname}");
+                numS++;
             }
-            success.Replace("%num%", success.ToString().Count(c => c.Equals('|')).ToString());
-            failure.Replace("%num%", failure.ToString().Count(c => c.Equals('|')).ToString());
+            success.Replace("%num%", numS.ToString());
+            failure.Replace("%num%", numF.ToString());
 
-            response = success.AppendLine().Append(failure).ToString();
-            string debug = Regex.Replace(response, "<.*?>", "").Replace(Environment.NewLine, "| ");
+            StringBuilder result = numS == 0 ? failure : numF == 0 ? success : success.Append(failure);
+            response = StringBuilderPool.Shared.ToStringReturn(result).TrimEnd(Array.Empty<char>());
+            string debug = Regex.Replace(response, "<.*?>", "").Replace("- ", "").Replace(Environment.NewLine, ". ");
             Log.Debug($"{debug}", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.Spawn");
             return true;
 		}
