@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
 using PluginAPI.Events;
+using PluginAPI.Helpers;
+using PluginAPI.Loader;
 using UnityEngine;
 
 namespace GhostSpectator
@@ -23,14 +26,23 @@ namespace GhostSpectator
         [PluginConfig] public Config PluginConfig;
 
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.1.1", null, "Phineapple18")]
+		[PluginEntryPoint("GhostSpectator", "1.2.0", null, "Phineapple18")]
 		public void OnLoad()
 		{
-			if (!PluginConfig.IsEnabled)
+            if (!PluginConfig.IsEnabled)
 			{
+                Log.Warning("Plugin GhostSpectator is disabled.", "GhostSpectator");
                 return;
 			}
-			Singleton = this;
+            if (!AssemblyLoader.InstalledPlugins.Any(p => p.PluginName == "NWApiPermissionSystem"))
+            {
+                throw new DllNotFoundException("The NWApiPermissionSystem plugin is required for GhostSpectator to work.");
+            }
+            if (File.Exists(Path.Combine(Paths.GlobalPlugins.Plugins, "0Harmony.dll")) || File.Exists(Path.Combine(Paths.LocalPlugins.Plugins, "0Harmony.dll")))
+            {
+                Log.Warning("0Harmony should be in the dependencies folder.", "GhostSpectator");
+            }
+            Singleton = this;
             pluginHandler = PluginHandler.Get(this);
             EventManager.RegisterEvents<EventHandlers>(this);
             this.GetSpawnPoints(CultureInfo.InvariantCulture);
@@ -58,8 +70,10 @@ namespace GhostSpectator
             if (spawnPositions.Count == 0)
             {
                 spawnPositions.Add(new (9f, 1002f, 1f));
-                Log.Warning("All spawn positions were in wrong format, default spawn point will be used instead.", pluginHandler.PluginName);
+                Log.Error("All spawn positions were in wrong format, default spawn point will be used instead.", pluginHandler.PluginName);
+                return;
             }
+            Log.Debug($"Successfully loaded {spawnPositions.Count} Ghost spawn positions.", PluginConfig.Debug, pluginHandler.PluginName);
         }
 
         public void GetShootingAreas(CultureInfo dot)
@@ -86,8 +100,10 @@ namespace GhostSpectator
             if (shootingAreas.Count == 0)
             {
                 shootingAreas.Add(new (new Vector3(0f, 995.5f, -8f), new Vector3(20f, 1f, 8f)));
-                Log.Warning("All shooting areas were in wrong format, default shooting area will be used instead.", pluginHandler.PluginName);
+                Log.Error("All shooting areas were in wrong format, default shooting area will be used instead.", pluginHandler.PluginName);
+                return;
             }
+            Log.Debug($"Successfully created {shootingAreas.Count} shooting areas.", PluginConfig.Debug, pluginHandler.PluginName);
         }
 
         internal Harmony harmony;

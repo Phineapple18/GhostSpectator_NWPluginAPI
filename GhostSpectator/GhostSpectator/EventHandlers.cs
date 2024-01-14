@@ -26,8 +26,8 @@ namespace GhostSpectator
         }
 
         [PluginEvent(ServerEventType.PlayerChangeRole)]
-		internal void OnPlayerChangeRole(PlayerChangeRoleEvent ev)
-		{
+        internal void OnPlayerChangeRole(PlayerChangeRoleEvent ev)
+        {
 			if (ev.Player.IsGhost())
 			{
 				GhostExtensions.Despawn(ev.Player, false);
@@ -57,7 +57,7 @@ namespace GhostSpectator
                     if (validPlayers.IsEmpty())
                     {
                         ev.Player.ReceiveHint(config.TeleportFail, 3f);
-						Log.Debug($"Player {ev.Player.Nickname} failed to teleport due to missing valid targets.", config.Debug, pluginName);
+						Log.Debug($"Ghost {ev.Player.Nickname} failed to teleport due to missing valid targets.", config.Debug, pluginName);
                     }
                     else
                     {
@@ -65,7 +65,7 @@ namespace GhostSpectator
                         ev.Player.Position = target.Position + Vector3.up;
 						string message = config.TeleportSuccess.Replace("%player%", target.Nickname);
                         ev.Player.ReceiveHint(message, 3f);
-                        Log.Debug($"Ghost {ev.Player.Nickname} was teleported to player {target.Nickname}.", config.Debug, pluginName);
+                        Log.Debug($"Ghost {ev.Player.Nickname} was teleported to a target {target.Nickname}.", config.Debug, pluginName);
                     }
                     return false;
                 }
@@ -192,6 +192,7 @@ namespace GhostSpectator
 				{
 					GhostExtensions.Despawn(ghost);
 				}
+				Log.Debug($"Despawned all Ghosts, that don't have required permission, due to warhead detonation.", config.Debug, pluginName);
 			}
 		}
 
@@ -199,6 +200,6 @@ namespace GhostSpectator
 
         private readonly string pluginName = Plugin.Singleton.pluginHandler.PluginName;
 
-        private static readonly System.Random random = new System.Random();
+        private static readonly System.Random random = new ();
 	}
 }

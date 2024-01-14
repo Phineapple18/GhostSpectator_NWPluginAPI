@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +36,7 @@ namespace GhostSpectator
 				ply.SetRole(RoleTypeId.Spectator, RoleChangeReason.RemoteAdmin);
 			}
 			ply.TemporaryData.Remove("IsGhostSpectator");
-			Log.Debug($"Player {ply.Nickname} is no longer a Ghost.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+			Log.Debug($"Player {ply.Nickname} is no longer a Ghost{(forceToSpectator ? " and was forced to Spectator" : "")}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
 		}
 
         public static bool IsGhost(this ReferenceHub hub)
@@ -55,6 +55,7 @@ namespace GhostSpectator
         {
             Timing.WaitUntilTrue(() => player.Role == RoleTypeId.Scp0492);
             Timing.CallDelayed(0.1f, () => player.Position = position + Vector3.up);
+			Log.Debug($"Finished correcting zombie position for player {player.Nickname}",Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
             yield break;
         }
     }

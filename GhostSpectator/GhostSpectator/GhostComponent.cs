@@ -24,7 +24,7 @@ namespace GhostSpectator
         public void Awake()
         {
             _player = Player.Get(ReferenceHub.GetHub(base.transform.root.gameObject));
-            Log.Debug($"Created GhostComponent for {_player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            Log.Debug($"Created a GhostComponent for player {_player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
         }
 
         public void OnEnable()
@@ -53,7 +53,7 @@ namespace GhostSpectator
                 string message = config.Spawnmessage.Replace("%colour%", config.GhostColor).Replace("%TeleportItem%", config.TeleportItem.ToString());
                 _player.SendBroadcast(message, config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
             }
-            Log.Debug($"Enabled GhostComponent for {_player.Nickname}.", config.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            Log.Debug($"Enabled a GhostComponent for player {_player.Nickname}.", config.Debug, Plugin.Singleton.pluginHandler.PluginName);
         }
 
         public void OnDisable()
@@ -80,7 +80,7 @@ namespace GhostSpectator
                 }
                 this.shootingTargets.Remove(toy.Key);
             }
-            Log.Debug($"Disabled GhostComponent for {_player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            Log.Debug($"Disabled a GhostComponent for player {_player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
         }
 
         public BlockedInteraction BlockedInteractions => BlockedInteraction.BeDisarmed | BlockedInteraction.GeneralInteractions | BlockedInteraction.GrabItems;
