@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using CommandSystem;
 using NorthwoodLib.Pools;
+using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.RemoteAdminConsole
 {
@@ -33,9 +34,10 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
             this.RegisterCommand(new Despawn(translation.DespawnCommand, translation.DespawnDescription, translation.DespawnAliases));
             this.RegisterCommand(new List(translation.ListCommand, translation.ListDescription, translation.ListAliases));
             this.RegisterCommand(new Spawn(translation.SpawnCommand, translation.SpawnDescription, translation.SpawnAliases));
+            Log.Info($"Registered {this.AllCommands.Count()} command(s) for GhostSpectatorParent (Remote Admin).", "GhostSpectator");
         }
 
-		protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
 			if (Plugin.Singleton == null)
 			{

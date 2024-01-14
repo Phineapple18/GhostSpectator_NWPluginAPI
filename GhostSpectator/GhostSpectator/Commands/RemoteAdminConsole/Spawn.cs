@@ -78,6 +78,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
+            validHubs.Remove(validHubs.FirstOrDefault(h => h.isLocalPlayer));
             StringBuilder success = StringBuilderPool.Shared.Rent(); 
             StringBuilder failure = StringBuilderPool.Shared.Rent();
             success.AppendLine($"{translation.SpawnSuccess}:");
@@ -87,7 +88,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
             foreach (ReferenceHub hub in validHubs)
 			{
 				Player player = Player.Get(hub);
-                if (player.IsServer || player.IsGhost())
+                if (player.IsGhost())
                 {
                     failure.AppendLine($"- {player.Nickname}");
                     numF++;
