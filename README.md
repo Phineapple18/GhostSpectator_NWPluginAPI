@@ -14,7 +14,7 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
   * listen to SCP and Spectators chats
   * listen to other Ghosts via RoundSummary chat, if they are not in the Proximity chat or far enough (distance can be set in the config)
 
-## Required plugins and dependencies (1.1.0): 
+## Required plugins and dependencies (1.2.0): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
 
