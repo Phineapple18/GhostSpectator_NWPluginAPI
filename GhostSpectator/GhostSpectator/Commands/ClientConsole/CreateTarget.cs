@@ -103,7 +103,7 @@ namespace GhostSpectator.Commands.ClientConsole
             target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
             target.OnSpawned(commandsender.ReferenceHub, arguments);
             component.shootingTargets.Add(target.netId, target);
-            Log.Debug($"Ghost {commandsender.Nickname} created a shooting target with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
+            Log.Debug($"Player {commandsender.Nickname} created a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
             response = translation.CreatetargetSuccess.Replace("%id%", target.netId.ToString());
             return true;
         }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using CommandSystem;
 using NorthwoodLib.Pools;
+using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
@@ -36,9 +37,10 @@ namespace GhostSpectator.Commands.ClientConsole
             this.RegisterCommand(new EnableVoicechannel(translation.EnableVoicechannelCommand, translation.EnableVoicechannelDescription, translation.EnableVoicechannelAliases));
             this.RegisterCommand(new GhostMe (translation.GhostmeCommand, translation.GhostmeDescription, translation.GhostmeAliases));
             this.RegisterCommand(new GiveFirearm(translation.GivefirearmCommand, translation.GivefirearmDescription, translation.GivefirearmAliases));
+            Log.Info($"Registered {this.AllCommands.Count()} command(s) for GhostSpectatorParent (Client Console).", "GhostSpectator");
         }
 
-		protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
+        protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
 			if (Plugin.Singleton == null)
 			{

@@ -86,7 +86,7 @@ namespace GhostSpectator.Commands.ClientConsole
             AdminToyBase target = NetworkUtils.SpawnedNetIds[targetid].GetComponent<AdminToyBase>();
             NetworkServer.Destroy(target.gameObject);
             component.shootingTargets.Remove(targetid);
-            Log.Debug($"Ghost {commandsender.Nickname} destroyed a shooting target with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.DestroyTarget");
+            Log.Debug($"Player {commandsender.Nickname} destroyed a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.DestroyTarget");
             response = translation.DestroytargetSuccess;
             return true;
         }

@@ -82,7 +82,7 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, firearm.GetCurrentAttachmentsCode());
             response = translation.GivefirearmSuccess.Replace("%itemType%", itemType.ToString());
-            Log.Debug($"Player {commandsender.Nickname} gave himself a firearm: {itemType}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.GiveFirearm");
+            Log.Debug($"Player {commandsender.Nickname} gave himself a firearm {itemType}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.GiveFirearm");
             return true;
         }
 

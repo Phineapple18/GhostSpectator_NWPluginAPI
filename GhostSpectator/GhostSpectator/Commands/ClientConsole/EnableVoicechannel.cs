@@ -76,6 +76,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 }
             }
             response = success ? result.Replace(',', '.', result.Length - 1, 1).ToString() : translation.EnableVoicechatFail;
+            Log.Debug($"Player {commandsender.Nickname} {(success ? "" : "un")}successfully enabled themselves voicechannel(s).", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.EnableVoicechannel");
             return success;
         }
 

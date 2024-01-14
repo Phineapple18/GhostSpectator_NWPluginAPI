@@ -59,12 +59,14 @@ namespace GhostSpectator.Commands.ClientConsole
 			{
 				GhostExtensions.Despawn(commandsender);
                 response = translation.SelfSpec;
+                Log.Debug($"Player {commandsender.Nickname} turned himself to Spectator by command.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.GhostMe");
                 return true;
 			}
 			if (commandsender.Role == RoleTypeId.Spectator)
 			{
 				GhostExtensions.Spawn(commandsender);
                 response = translation.SelfGhost;
+                Log.Debug($"Player {commandsender.Nickname} turned himself to a Ghost by command.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.GhostMe");
                 return true;
 			}
             response = translation.SelfFail;
