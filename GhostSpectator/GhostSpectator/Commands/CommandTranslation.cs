@@ -8,6 +8,7 @@ using System.ComponentModel;
 
 using GhostSpectator.Commands.ClientConsole;
 using GhostSpectator.Commands.RemoteAdminConsole;
+using PluginAPI.Core;
 using PluginAPI.Helpers;
 using Serialization;
 
@@ -159,11 +160,13 @@ namespace GhostSpectator.Commands
             string filePath = Path.Combine(directoryPath, fileName);
             if (!File.Exists(filePath))
             {
-                Directory.CreateDirectory(directoryPath);
+                Directory.CreateDirectory(directoryPath);             
                 File.WriteAllText(filePath, YamlParser.Serializer.Serialize(new CommandTranslation()));
+                Log.Info($"Created {(File.Exists(globalDll) ? "global" : "local")} directory and file for command translations.", "GhostSpectator");
             }
             CommandTranslation translation = YamlParser.Deserializer.Deserialize<CommandTranslation>(File.ReadAllText(filePath));
             loadedTranslation = translation;
+            Log.Info("Loaded command translations.", "GhostSpectator");
             File.WriteAllText(filePath, YamlParser.Serializer.Serialize(translation));
             return translation;   
         }
