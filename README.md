@@ -12,7 +12,7 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
   * noclip
   * spawn themselves a shooting target and give themselves a firearm - a firearm will be automatically refilled, when emptied
   * listen to SCP and Spectators chats
-  * listen to other Ghosts via RoundSummary chat, if they are not in the Proximity chat or far enough (distance can be set in the config)
+  * listen to other Ghosts via RoundSummary chat, if they are outside Proximity chat or further than certain distance
   * challenge other Ghosts to a duel
 
 ## Required plugins and dependencies (1.2.1): 
@@ -27,9 +27,9 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 |ghost_nickname|string|GHOST|Nickname of a Ghost, that is displayed in place of a role.|
 |ghost_color|string|'#A0A0A0'|Color of a Ghost nickname.|
 |ghost_health|float|150|Max Ghost health.|
-|spawnmessage|string|<size=50><color=%colour%>You are a Ghost!\</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.\</size>|Broadcast sent to a Ghost upon spawn.|
-|spawnmessage_duration|ushort|5|Duration of a spawn message.|
-|spawnpositions|List\<string>|- 9, 1002, 1|Ghost spawn positions.|
+|spawn_message|string|<size=50><color=%colour%>You are a Ghost!\</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.\</size>|Broadcast sent to a Ghost upon spawn.|
+|spawn_message_duration|ushort|5|Duration of a spawn message.|
+|spawn_positions|List\<string>|- 9, 1002, 1|Ghost spawn positions.|
 |teleport_item|ItemType|Lantern|Item given to every Ghost, that can teleport them to an alive player when dropped.|
 |teleport_success|string|You were teleported to <color=green>%player%\</color>.|Hint shown to a Ghost, if teleport succeeds.|
 |teleport_fail|string|There is nobody you can teleport to.|Hint shown to a Ghost, if teleport fails.|
@@ -71,9 +71,9 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 - gs.firearm - allows a Ghost to give themselves a firearm
 - gs.item - allows a Ghost to drop and throw items and use Particle Disruptor
 - gs.listen.dead - allows a Ghost to hear Spectators
-- gs.listen.ghost - allows a Ghost to hear other Ghosts, if they are not in proximity
+- gs.listen.ghost - allows a Ghost to hear other Ghosts via RoundSummary chat, if they are outside Proximity chat or further than certain distance
 - gs.listen.scp - allows a Ghost to hear SCPs
-- gs.noclip - allows a Ghost to have noclip enabled
+- gs.noclip - allows a Ghost to have noclip permitted
 - gs.spawn.player - allows a player to (de)spawn any player to and from Ghost
 - gs.spawn.self - allows a player to (de)spawn themselves to and from Ghost
 - gs.target - allows a player to (de)spawn their shooting target
