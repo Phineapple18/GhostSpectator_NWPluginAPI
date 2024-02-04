@@ -27,22 +27,22 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 |ghost_nickname|string|GHOST|Nickname of a Ghost, that is displayed in place of a role.|
 |ghost_color|string|'#A0A0A0'|Color of a Ghost nickname.|
 |ghost_health|float|150|Max Ghost health.|
-|spawnmessage|string|<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.</size>|Broadcast sent to a Ghost upon spawn.|
+|spawnmessage|string|<size=50><color=%colour%>You are a Ghost!\</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.\</size>|Broadcast sent to a Ghost upon spawn.|
 |spawnmessage_duration|ushort|5|Duration of a spawn message.|
-|spawnpositions|List\<string\>|- 9, 1002, 1|Ghost spawn positions.|
+|spawnpositions|List\<string>|- 9, 1002, 1|Ghost spawn positions.|
 |teleport_item|ItemType|Lantern|Item given to every Ghost, that can teleport them to an alive player when dropped.|
-|teleport_success|string|You were teleported to <color=green>%player%</color>.|Hint shown to a Ghost, if teleport succeeds.|
+|teleport_success|string|You were teleported to <color=green>%player%\</color>.|Hint shown to a Ghost, if teleport succeeds.|
 |teleport_fail|string|There is nobody you can teleport to.|Hint shown to a Ghost, if teleport fails.|
 |role_teleport_blacklist|List\<RoleTypeId\>|- Tutorial|A list of roles that Ghosts cannot be teleported to. Scp079 is already included.|
 |despawn_on_detonation|bool|true|Should Ghosts be despawned and not allowed to spawn after warhead detonation?|
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if spectated player is not a Ghost?|
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
 |target_limit|int|1|How many shooting targets can one Ghost have spawned?|
-|shooting_areas|Dictionary\<string, string\>| 10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.|
+|shooting_areas|Dictionary\<string, string>| 10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.|
 |hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity, if they have enabled listening to Ghosts.|
 |duel_request_time|float|10f|Time, after which the duel offer will expire.|
-|duel_won|string|You have won the duel against <color=red>%player%</color>.|Hint shown to a Ghost, who won a duel.|
-|duel_lost|string|You have lost the duel against <color=red>%player%</color>.|Hint shown to a Ghost, who lost a duel.|
+|duel_won|string|You have won the duel against <color=red>%player%\</color>.|Hint shown to a Ghost, who won a duel.|
+|duel_lost|string|You have lost the duel against <color=red>%player%\</color>.|Hint shown to a Ghost, who lost a duel.|
 
 ## Command translations
 Translations for commands are in separate file "commandtranslation.yml", in the same folder as the config file. You can translate a command, its description and aliases, and all command responses. 
