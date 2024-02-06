@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using NWAPIPermissionSystem;
+using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.RemoteAdminConsole
 {
@@ -14,30 +16,34 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
         {
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            Aliases = aliases;
+            Log.Debug("Loaded List subcommand.", CommandTranslation.commandTranslation.Debug, "GhostSpectator");
         }
-
-        public string Command { get; } 
-
-		public string[] Aliases { get; } 
-
-		public string Description { get; } 
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
 			if (Plugin.Singleton == null)
 			{
-				response = CommandTranslation.loadedTranslation.NotEnabled;
+				response = CommandTranslation.commandTranslation.NotEnabled;
 				return false;
 			}
-            response = $"{CommandTranslation.loadedTranslation.GhostList.Replace("%num%", GhostExtensions.List.Count().ToString())}:\n- {string.Join("\n- ", from player in GhostExtensions.List select player.Nickname)}";
+            if (!sender.CheckPermission("gs.list"))
+            {
+                response = CommandTranslation.commandTranslation.NoPerms;
+                return false;
+            }
+            response = $"{CommandTranslation.commandTranslation.GhostList.Replace("%num%", GhostExtensions.List.Count().ToString())}:\n- {string.Join("\n- ", from player in GhostExtensions.List select player.Nickname)}";
             return true;
 		}
 
-        internal static readonly string _command = "list";
+        internal const string _command = "list";
 
-        internal static readonly string _description = "Print a list of all Ghosts.";
+        internal const string _description = "Print a list of all Ghosts.";
 
         internal static readonly string[] _aliases = new string[] { "l" };
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }

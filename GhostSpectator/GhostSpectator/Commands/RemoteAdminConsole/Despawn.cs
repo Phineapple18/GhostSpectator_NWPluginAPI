@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+
+using System.Text.RegularExpressions;
 
 using CommandSystem;
 using NorthwoodLib.Pools;
@@ -19,24 +20,19 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
         {
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            Aliases = aliases;
+            Log.Debug("Loaded Despawn subcommand.", CommandTranslation.commandTranslation.Debug, "GhostSpectator");
         }
 
-        public string Command { get; }
-
-		public string[] Aliases { get; }
-
-		public string Description { get; } 
-
-		public string[] Usage { get; } = new string[]
+        public string[] Usage { get; } = new string[]
 		{
-            "(\"true/false\")",
-            "%player%\"all\""
+            "(true/false)",
+            "%player%/all"
 		};
 
 		public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
+            CommandTranslation translation = CommandTranslation.commandTranslation;
             if (Plugin.Singleton == null)
 			{
 				response = translation.NotEnabled;
@@ -69,11 +65,11 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
-            validHubs.Remove(validHubs.FirstOrDefault(h => h.isLocalPlayer));
+            validHubs.Remove(Server.Instance.ReferenceHub);
             StringBuilder success = StringBuilderPool.Shared.Rent();
             StringBuilder failure = StringBuilderPool.Shared.Rent();
-            success.AppendLine($"{translation.SpawnSuccess}:");
-            failure.AppendLine($"{translation.SpawnFail}:");
+            success.AppendLine($"{translation.DespawnSuccess}:");
+            failure.AppendLine($"{translation.DespawnFail}:");
             int numS = 0;
             int numF = 0;
             foreach (ReferenceHub hub in validHubs)
@@ -99,10 +95,14 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
             return true;
 		}
 
-        internal static readonly string _command = "despawn";
+        internal const string _command = "despawn";
 
-        internal static readonly string _description = "Despawn selected player(s) from Ghost to Tutorial (true) or Spectator (false = default option).";
+        internal const string _description = "Despawn selected player(s) from Ghost to Tutorial (true) or Spectator (false = default option).";
 
         internal static readonly string[] _aliases = new string[] { "d" };
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using System.Text.RegularExpressions;
+
 using CommandSystem;
-using Discord;
 using NorthwoodLib.Pools;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
@@ -20,23 +20,18 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
         {
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
             Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            Aliases = aliases;
+            Log.Debug("Loaded Spawn subcommand.", CommandTranslation.commandTranslation.Debug, "GhostSpectator");
         }
 
-		public string Command { get; } 
-
-        public string[] Aliases { get; } 
-
-        public string Description { get; } 
-
-		public string[] Usage { get; } = new string[]
+        public string[] Usage { get; } = new string[]
 		{
-			"%player%/\"all\""
+			"%player%/all"
 		};
 
 		public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
+            CommandTranslation translation = CommandTranslation.commandTranslation;
             if (Plugin.Singleton == null)
 			{
 				response = translation.NotEnabled;
@@ -78,7 +73,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
                 response = translation.DedicatedServer;
                 return false;
             }
-            validHubs.Remove(validHubs.FirstOrDefault(h => h.isLocalPlayer));
+            validHubs.Remove(Server.Instance.ReferenceHub);
             StringBuilder success = StringBuilderPool.Shared.Rent(); 
             StringBuilder failure = StringBuilderPool.Shared.Rent();
             success.AppendLine($"{translation.SpawnSuccess}:");
@@ -108,10 +103,14 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
             return true;
 		}
 
-        internal static readonly string _command = "spawn";
+        internal const string _command = "spawn";
 
-        internal static readonly string _description = "Spawn selected player(s) as a Ghost.";
+        internal const string _description = "Spawn selected player(s) as a Ghost.";
 
         internal static readonly string[] _aliases = new string[] { "s" };
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }
