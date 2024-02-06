@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
+using System.Reflection;
+using System.Reflection.Emit;
 
 using HarmonyLib;
 using NorthwoodLib.Pools;
@@ -15,7 +16,7 @@ using PlayerRoles;
 
 namespace GhostSpectator.Patches
 {
-	[HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
+    [HarmonyPatch(typeof(FpcServerPositionDistributor), nameof(FpcServerPositionDistributor.WriteAll))]
     internal class VisibilityPatch
 	{
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)

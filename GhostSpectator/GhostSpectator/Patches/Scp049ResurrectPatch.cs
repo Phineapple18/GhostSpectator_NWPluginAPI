@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+
+using System.Reflection.Emit;
 
 using HarmonyLib;
 using NorthwoodLib.Pools;
@@ -28,7 +29,7 @@ namespace GhostSpectator.Patches
             {
                 new (OpCodes.Brtrue_S, checkNext),
                 new (OpCodes.Ldloc_0),
-                new (OpCodes.Call, AccessTools.Method(typeof(Scp049ResurrectPatch), nameof(IsDead), new Type[] {typeof(ReferenceHub)})),
+                new (OpCodes.Call, AccessTools.Method(typeof(Scp049ResurrectPatch), nameof(IsDead), new Type[] {typeof(ReferenceHub)}))
             });
 
             for (int i = 0; i < newInstructions.Count; i++)

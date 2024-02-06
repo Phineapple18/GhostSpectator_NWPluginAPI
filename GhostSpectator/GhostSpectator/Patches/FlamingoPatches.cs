@@ -1,15 +1,17 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
-using Christmas.Scp2536.Gifts;
+using System.Reflection.Emit;
 using HarmonyLib;
-using InventorySystem.Items.FlamingoTapePlayer;
 using Mirror;
 using NorthwoodLib.Pools;
+
+#if CHRISTMAS
+using Christmas.Scp2536.Gifts;
+using InventorySystem.Items.FlamingoTapePlayer;
 using PlayerRoles.PlayableScps.Scp1507;
 
 namespace GhostSpectator.Patches
@@ -25,6 +27,15 @@ namespace GhostSpectator.Patches
             }
         }
     }
+
+    [HarmonyPatch(typeof(TapeItem), nameof(TapeItem.ServerProcessCmd))]
+    internal class UseTapePatch
+    {
+        internal static bool Prefix(TapeItem __instance)
+        {
+            return !__instance.Owner.IsGhost();
+        }
+    }   
 
     [HarmonyPatch(typeof(Tape), nameof(Tape.CanBeGranted))]
     internal class GrantTapePatch
@@ -53,13 +64,5 @@ namespace GhostSpectator.Patches
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
     }
-
-    [HarmonyPatch(typeof(TapeItem), nameof(TapeItem.ServerProcessCmd))]
-    internal class UseTapePatch
-    {
-        internal static bool Prefix(TapeItem __instance)
-        {
-            return !__instance.Owner.IsGhost();
-        }
-    }
-}*/
+} 
+#endif

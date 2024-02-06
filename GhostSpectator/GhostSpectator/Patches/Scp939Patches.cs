@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+
+using System.Reflection;
+using System.Reflection.Emit;
 
 using HarmonyLib;
 using InventorySystem.Items;
@@ -32,13 +33,13 @@ namespace GhostSpectator.Patches
 
             Label returnLabel = generator.DefineLabel();
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(ItemBase), "Owner"));
-            
+
             newInstructions.InsertRange(index, new List<CodeInstruction>
             {
                 new (OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), "Owner")),
                 new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new Type[] {typeof(ReferenceHub)})),
                 new (OpCodes.Brtrue_S, returnLabel),
-                new (OpCodes.Ldarg_1),
+                new (OpCodes.Ldarg_1)
             });
 
             newInstructions[newInstructions.Count - 1].WithLabels(returnLabel);

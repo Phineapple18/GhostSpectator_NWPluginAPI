@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Reflection;
+using System.Reflection.Emit;
+
 using HarmonyLib;
 using NorthwoodLib.Pools;
 using PlayerRoles.Voice;
 using PluginAPI.Core;
-using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
 using VoiceChat;
 using VoiceChat.Networking;
@@ -45,7 +46,7 @@ namespace GhostSpectator.Patches
 
         private static void OverrideVoicechannel(ReferenceHub hub1, ReferenceHub hub2, ref VoiceChatChannel voiceChatChannel2)
         {
-            if (hub1 == hub2 || Round.IsRoundEnded || !hub1.IsGhost())
+            if (hub1 == hub2 || !hub1.IsGhost())
             {
                 return;
             }
