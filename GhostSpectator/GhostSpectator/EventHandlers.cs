@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +18,12 @@ namespace GhostSpectator
 {
     internal class EventHandlers
     {
+        [PluginEvent(ServerEventType.PlaceBlood)]
+        internal bool OnPlaceBlood(PlaceBloodEvent ev)
+        {
+            return !ev.Player.IsGhost();
+        }
+
         [PluginEvent(ServerEventType.PlayerCoinFlip)]
         internal bool OnPlayerCoinFlip(PlayerCoinFlipEvent ev)
         {
@@ -28,7 +33,7 @@ namespace GhostSpectator
         [PluginEvent(ServerEventType.PlayerChangeRole)]
         internal void OnPlayerChangeRole(PlayerChangeRoleEvent ev)
         {
-			if (ev.Player.IsGhost())
+            if (ev.Player.IsGhost())
 			{
 				GhostExtensions.Despawn(ev.Player, false);
 			}
@@ -37,8 +42,16 @@ namespace GhostSpectator
         [PluginEvent(ServerEventType.PlayerDamage)]
         internal bool OnPlayerDamage(PlayerDamageEvent ev)
 		{
-            return !ev.Player.IsGhost();
-		}
+            if (!(ev.Player.IsGhost() || ev.Target.IsGhost()))
+			{
+                return true;
+			}
+            if (ev.Player.IsGhost() ^ ev.Target.IsGhost())
+			{
+                return false;
+			}
+            return ev.Target.GetGhostComponent().duelPartner == ev.Player;
+        }
 
         [PluginEvent(ServerEventType.PlayerDamagedWindow)]
         internal bool OnPlayerDamagedWindow(PlayerDamagedWindowEvent ev)
@@ -63,8 +76,7 @@ namespace GhostSpectator
                     {
                         Player target = validPlayers.ElementAt(random.Next(validPlayers.Count));
                         ev.Player.Position = target.Position + Vector3.up;
-						string message = config.TeleportSuccess.Replace("%player%", target.Nickname);
-                        ev.Player.ReceiveHint(message, 3f);
+                        ev.Player.ReceiveHint(config.TeleportSuccess.Replace("%player%", target.Nickname), 3f);
                         Log.Debug($"Ghost {ev.Player.Nickname} was teleported to a target {target.Nickname}.", config.Debug, pluginName);
                     }
                     return false;
@@ -77,7 +89,23 @@ namespace GhostSpectator
             return true;
 		}
 
-		[PluginEvent(ServerEventType.PlayerEnterPocketDimension)]
+        [PluginEvent(ServerEventType.PlayerDying)]
+        internal bool OnPlayerDying(PlayerDyingEvent ev)
+        {
+            if (ev.Attacker.IsGhost() && ev.Player.IsGhost())
+            {
+                ev.Attacker.GetGhostComponent().duelPartner = null;
+                ev.Player.GetGhostComponent().duelPartner = null;
+                ev.Attacker.Health = config.GhostHealth;
+                ev.Player.Health = config.GhostHealth;
+                ev.Attacker.SendBroadcast(config.DuelWon.Replace("%player%", ev.Player.Nickname), 5, Broadcast.BroadcastFlags.Normal, true);
+                ev.Player.SendBroadcast(config.DuelLost.Replace("%player%", ev.Player.Nickname), 5, Broadcast.BroadcastFlags.Normal, true);
+                return false;
+            }
+            return true;
+        }
+
+        [PluginEvent(ServerEventType.PlayerEnterPocketDimension)]
 		internal bool OnPlayerEnterPocketDimension(PlayerEnterPocketDimensionEvent ev)
 		{
 			return !ev.Player.IsGhost();
@@ -88,7 +116,7 @@ namespace GhostSpectator
 		{
 			if (ev.Player.IsGhost())
 			{
-				ev.Player.Position = Plugin.spawnPositions.ElementAt(random.Next(Plugin.spawnPositions.Count));
+                ev.Player.Position = Plugin.spawnPositions.ElementAt(random.Next(Plugin.spawnPositions.Count));
                 Log.Debug($"Player {ev.Player.Nickname} left a Pocket Dimension as a Ghost.", config.Debug, pluginName);
                 return false;
 			}
@@ -153,6 +181,15 @@ namespace GhostSpectator
 			return !ev.Player.IsGhost();
 		}
 
+        [PluginEvent(ServerEventType.RoundEnd)]
+        internal void OnRoundEnd(RoundEndEvent ev)
+        {
+            foreach (Player ghost in GhostExtensions.List)
+            {
+                GhostExtensions.Despawn(ghost, false);
+            }
+        }
+
         [PluginEvent(ServerEventType.Scp049ResurrectBody)]
         internal void OnScp049ResurrectBody(Scp049ResurrectBodyEvent ev)
         {
@@ -192,7 +229,7 @@ namespace GhostSpectator
 				{
 					GhostExtensions.Despawn(ghost);
 				}
-				Log.Debug($"Despawned all Ghosts, that don't have required permission, due to warhead detonation.", config.Debug, pluginName);
+				Log.Debug("Despawned all Ghosts, that don't have required permission, due to warhead detonation.", config.Debug, pluginName);
 			}
 		}
 

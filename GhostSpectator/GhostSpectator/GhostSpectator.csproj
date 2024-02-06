@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -77,13 +77,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\ClientConsole\CreateTarget.cs" />
-    <Compile Include="Commands\ClientConsole\DestroyTarget.cs" />
-    <Compile Include="Commands\ClientConsole\DisableVoicechannel.cs" />
-    <Compile Include="Commands\ClientConsole\EnableVoicechannel.cs" />
+    <Compile Include="Commands\ClientConsole\Duel\Abandon.cs" />
+    <Compile Include="Commands\ClientConsole\Duel\Accept.cs" />
+    <Compile Include="Commands\ClientConsole\Duel\Cancel.cs" />
+    <Compile Include="Commands\ClientConsole\Duel\DuelParent.cs" />
+    <Compile Include="Commands\ClientConsole\Duel\ListDuel.cs" />
     <Compile Include="Commands\ClientConsole\GhostMe.cs" />
-    <Compile Include="Commands\ClientConsole\GhostSpectatorParent.cs" />
     <Compile Include="Commands\ClientConsole\GiveFirearm.cs" />
+    <Compile Include="Commands\ClientConsole\ShootingTarget\CreateTarget.cs" />
+    <Compile Include="Commands\ClientConsole\ShootingTarget\DestroyTarget.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\DisableVoicechat.cs" />
+    <Compile Include="Commands\ClientConsole\Voicechat\EnableVoicechat.cs" />
     <Compile Include="Commands\CommandTranslation.cs" />
     <Compile Include="Commands\RemoteAdminConsole\Despawn.cs" />
     <Compile Include="Commands\RemoteAdminConsole\GhostSpectatorParent.cs" />
@@ -93,10 +97,12 @@
     <Compile Include="EventHandlers.cs" />
     <Compile Include="GhostComponent.cs" />
     <Compile Include="GhostExtensions.cs" />
-    <Compile Include="Patches\BulletPatch.cs" />
+    <Compile Include="Patches\ApplyDamagePatch.cs" />
+    <Compile Include="Patches\BulletDecalPatch.cs" />
     <Compile Include="Patches\CheckSpawnablePatch.cs" />
     <Compile Include="Patches\FlamingoPatches.cs" />
-    <Compile Include="Patches\FootstepPatch.cs" />
+    <Compile Include="Patches\MakingSoundPatches.cs" />
+    <Compile Include="Patches\FriendlyFirePatch.cs" />
     <Compile Include="Patches\Scp049ResurrectPatch.cs" />
     <Compile Include="Patches\Scp939Patches.cs" />
     <Compile Include="Patches\TeslaPatches.cs" />
@@ -108,7 +114,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetDir)$(TargetFileName)" "$(SLPlugin)\7777\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

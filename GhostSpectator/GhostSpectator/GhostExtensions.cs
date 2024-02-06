@@ -15,12 +15,11 @@ namespace GhostSpectator
     {
 		public static void Spawn(Player ply)
 		{
-			ply.TemporaryData.Add("IsGhostSpectator", "spawning");
-			ply.ReferenceHub.roleManager.ServerSetRole(RoleTypeId.Tutorial, RoleChangeReason.RemoteAdmin, RoleSpawnFlags.AssignInventory);
-			try
+            ply.TemporaryData.Add("IsGhostSpectator", "spawning");
+            try
 			{
-				ply.GameObject.GetComponent<GhostComponent>().enabled = true;
-			}
+                ply.GetGhostComponent().enabled = true;
+            }
 			catch (Exception)
 			{
                 ply.GameObject.AddComponent<GhostComponent>();
@@ -30,8 +29,8 @@ namespace GhostSpectator
 
 		public static void Despawn(Player ply, bool forceToSpectator = true)
 		{
-            ply.GameObject.GetComponent<GhostComponent>().enabled = false;
-			if (forceToSpectator)
+            ply.GetGhostComponent().enabled = false;
+            if (forceToSpectator)
 			{
 				ply.SetRole(RoleTypeId.Spectator, RoleChangeReason.RemoteAdmin);
 			}
@@ -55,8 +54,13 @@ namespace GhostSpectator
         {
             Timing.WaitUntilTrue(() => player.Role == RoleTypeId.Scp0492);
             Timing.CallDelayed(0.1f, () => player.Position = position + Vector3.up);
-			Log.Debug($"Finished correcting zombie position for player {player.Nickname}",Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+			Log.Debug($"Finished correcting zombie position for player {player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
             yield break;
+        }     
+
+        public static GhostComponent GetGhostComponent(this Player player)
+        {
+            return player.GameObject.GetComponent<GhostComponent>();
         }
     }
 }

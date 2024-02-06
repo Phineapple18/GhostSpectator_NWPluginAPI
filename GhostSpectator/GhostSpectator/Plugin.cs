@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using System.Globalization;
+using System.IO;
 
 using HarmonyLib;
 using PluginAPI.Core;
@@ -18,15 +19,9 @@ using UnityEngine;
 namespace GhostSpectator
 {
     public class Plugin
-    {
-        public static Plugin Singleton { get; private set; }
-
-		public PluginHandler pluginHandler;
-
-        [PluginConfig] public Config PluginConfig;
-
+    {  
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.2.0", null, "Phineapple18")]
+		[PluginEntryPoint("GhostSpectator", "1.2.1", null, "Phineapple18")]
 		public void OnLoad()
 		{
             if (!PluginConfig.IsEnabled)
@@ -40,7 +35,7 @@ namespace GhostSpectator
             }
             if (File.Exists(Path.Combine(Paths.GlobalPlugins.Plugins, "0Harmony.dll")) || File.Exists(Path.Combine(Paths.LocalPlugins.Plugins, "0Harmony.dll")))
             {
-                Log.Warning("0Harmony should be in the dependencies folder.", "GhostSpectator");
+                Log.Warning("0Harmony should be in the dependencies folder.", pluginHandler.PluginName);
             }
             Singleton = this;
             pluginHandler = PluginHandler.Get(this);
@@ -54,7 +49,7 @@ namespace GhostSpectator
 
         public void GetSpawnPoints(CultureInfo dot)
         {
-            foreach (string position in PluginConfig.Spawnpositions)
+            foreach (string position in PluginConfig.SpawnPositions)
             {
                 try
                 {
@@ -106,11 +101,17 @@ namespace GhostSpectator
             Log.Debug($"Successfully created {shootingAreas.Count} shooting areas.", PluginConfig.Debug, pluginHandler.PluginName);
         }
 
-        internal Harmony harmony;
+        public static Plugin Singleton { get; private set; }
 
-        internal static List<Vector3> spawnPositions = new ();
+        public PluginHandler pluginHandler;
+
+        [PluginConfig] public Config PluginConfig;
 
         internal static List<Bounds> shootingAreas = new ();
+
+        internal static List<Vector3> spawnPositions = new();
+
+        private Harmony harmony;
     }
 }
 

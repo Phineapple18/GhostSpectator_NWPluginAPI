@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using System.ComponentModel;
 
 using PlayerRoles;
@@ -23,14 +24,17 @@ namespace GhostSpectator
         [Description("Color of a Ghost nickname.")]
         public string GhostColor { get; set; } = "#A0A0A0";
 
-        [Description("Broadcast shown to a Ghost upon spawn.")]
-        public string Spawnmessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.</size>";
+        [Description("Max Ghost health.")]
+        public float GhostHealth { get; set; } = 150f;
+
+        [Description("Broadcast sent to a Ghost upon spawn.")]
+        public string SpawnMessage { get; set; } = "<size=50><color=%colour%>You are a Ghost!</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.</size>";
 
         [Description("Duration of a spawn message.")]
-        public ushort SpawnmessageDuration { get; set; } = 5;
+        public ushort SpawnMessageDuration { get; set; } = 5;
 
         [Description("Ghost spawn positions.")]
-        public List<string> Spawnpositions { get; set; } = new List<string> { "9, 1002, 1" };
+        public List<string> SpawnPositions { get; set; } = new List<string> { "9, 1002, 1" };
 
         [Description("Item given to every Ghost, that can teleport them to an alive player when dropped.")]
         public ItemType TeleportItem { get; set; } = ItemType.Lantern;
@@ -68,5 +72,14 @@ namespace GhostSpectator
 
         [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity, if they have enabled listening to Ghosts.")]
         public float HearDistance { get; set; } = 10f;
+
+        [Description("Time, after which the duel offer will expire.")]
+        public float DuelRequestTime { get; set; } = 10f;
+
+        [Description("Broadcast sent to a Ghost, who won a duel.")]
+        public string DuelWon { get; set; } = "You have won the duel against <color=red>%player%</color>.";
+
+        [Description("Broadcast sent to a Ghost, who lost a duel.")]
+        public string DuelLost { get; set; } = "You have lost the duel against <color=red>%player%</color>.";
     }
 }
