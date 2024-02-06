@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+
+using System.Reflection.Emit;
 
 using HarmonyLib;
 using InventorySystem.Items.Firearms.Modules;
@@ -12,7 +13,7 @@ using NorthwoodLib.Pools;
 namespace GhostSpectator.Patches
 {
     [HarmonyPatch(typeof(StandardHitregBase), "PlaceBulletholeDecal")]
-    internal class BulletPatch
+    internal class BulletDecalPatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
