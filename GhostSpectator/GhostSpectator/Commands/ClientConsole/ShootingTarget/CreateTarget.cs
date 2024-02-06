@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,31 +12,27 @@ using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using Utils.Networking;
 
-namespace GhostSpectator.Commands.ClientConsole
+namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 {
+    [CommandHandler(typeof(ClientCommandHandler))]
     public class CreateTarget : ICommand, IUsageProvider
     {
-        public CreateTarget (string command, string description, string[] aliases)
+        public CreateTarget ()
         {
-            Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            translation = CommandTranslation.commandTranslation;
+            Command = !string.IsNullOrWhiteSpace(translation.CreatetargetCommand) ? translation.CreatetargetCommand : _command;
+            Description = !string.IsNullOrWhiteSpace(translation.CreatetargetDescription) ? translation.CreatetargetDescription : _description;
+            Aliases = translation.CreatetargetAliases;
+            Log.Debug("Loaded CreateTarget command.", translation.Debug, "GhostSpectator");
         }
-
-        public string Command { get; }
-
-        public string[] Aliases { get; }
-
-        public string Description { get; }
 
         public string[] Usage { get; } = new string[]
         {
-            "\"dboy\"/\"sport\"/\"bin\""
+            "dboy/sport/bin"
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
@@ -55,24 +51,23 @@ namespace GhostSpectator.Commands.ClientConsole
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = translation.NotGhostSelf;
                 return false;
             }
-            GhostComponent component = commandsender.GetComponent<GhostComponent>();
             if (Plugin.Singleton.PluginConfig.TargetLimit <= 0)
             {
                 response = translation.TargetNotAllowed;
+                return false;
+            }
+            if (!Plugin.shootingAreas.Any(a => a.Contains(commandsender.Position)))
+            {
+                response = translation.WrongArea;
                 return false;
             }
             IFpcRole fpcRole = commandsender.RoleBase as IFpcRole;
             if (!fpcRole.FpcModule.IsGrounded)
             {
                 response = translation.NotGrounded;
-                return false;
-            }
-            if (!Plugin.shootingAreas.Any(a => a.Contains(commandsender.Position)))
-            {
-                response = translation.WrongArea;
                 return false;
             }
             if (arguments.IsEmpty())
@@ -91,6 +86,7 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = translation.WrongArgument;
                 return false;
             }
+            GhostComponent component = commandsender.GetGhostComponent();
             if (component.shootingTargets.Count >= Plugin.Singleton.PluginConfig.TargetLimit)
             {
                 var targetToRemove = component.shootingTargets.ElementAt(0);
@@ -102,23 +98,29 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
             target.OnSpawned(commandsender.ReferenceHub, arguments);
-            component.shootingTargets.Add(target.netId, target);
-            Log.Debug($"Player {commandsender.Nickname} created a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
+            component.shootingTargets.Add(target.netId, target); 
             response = translation.CreatetargetSuccess.Replace("%id%", target.netId.ToString());
+            Log.Debug($"Player {commandsender.Nickname} created a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
             return true;
         }
 
-        internal static readonly string _command = "createtarget";
+        internal const string _command = "createtarget";
 
-        internal static readonly string _description = "Create a shooting target.";
+        internal const string _description = "Create a shooting target.";
 
-        internal static readonly string[] _aliases = new string[] { "ct" };
+        internal static readonly string[] _aliases = new string[] { "cstg", "ctg" };
 
-        private readonly Dictionary<string, string> targetNames = new Dictionary<string, string>()
+        private readonly Dictionary<string, string> targetNames = new ()
         {
             { "dboy", "TargetDBoy" },
             { "sport", "TargetSport" },
             { "bin", "TargetBinary" }
         };
+
+        private readonly CommandTranslation translation;
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }
