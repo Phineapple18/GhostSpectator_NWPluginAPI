@@ -11,24 +11,20 @@ using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
+    [CommandHandler(typeof(ClientCommandHandler))]
     public class GhostMe : ICommand
 	{
-        public GhostMe (string command, string description, string[] aliases) 
+        public GhostMe () 
         {
-            Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            translation = CommandTranslation.commandTranslation;
+            Command = !string.IsNullOrWhiteSpace(translation.GhostmeCommand) ? translation.GhostmeCommand : _command;
+            Description = !string.IsNullOrWhiteSpace(translation.GhostmeDescription) ? translation.GhostmeDescription : _description;
+            Aliases = translation.GhostmeAliases;
+            Log.Debug("Loaded GhostMe command.", translation.Debug, "GhostSpectator");
         }
-
-        public string Command { get; }
-
-        public string[] Aliases { get; }
-
-        public string Description { get; }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
             if (Plugin.Singleton == null)
 			{
                 response = translation.NotEnabled;
@@ -73,10 +69,16 @@ namespace GhostSpectator.Commands.ClientConsole
             return false;
 		}
 
-        internal static readonly string _command = "ghostme";
+        internal const string _command = "ghostme";
 
-        internal static readonly string _description = "Change yourself to a Ghost from Spectator or vice versa.";
+        internal const string _description = "Change yourself to a Ghost from Spectator or vice versa.";
 
         internal static readonly string[] _aliases = new string[] { "gme", "me" };
+
+        private readonly CommandTranslation translation;
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }

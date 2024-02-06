@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 using CommandSystem;
 using InventorySystem;
-using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
 using NWAPIPermissionSystem;
@@ -14,29 +13,25 @@ using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.ClientConsole
 {
+    [CommandHandler(typeof(ClientCommandHandler))]
     public class GiveFirearm : ICommand, IUsageProvider
     {
-        public GiveFirearm (string command, string description, string[] aliases)
+        public GiveFirearm ()
         {
-            Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            translation = CommandTranslation.commandTranslation;
+            Command = !string.IsNullOrWhiteSpace(translation.GivefirearmCommand) ? translation.GivefirearmCommand : _command;
+            Description = !string.IsNullOrWhiteSpace(translation.GivefirearmDescription) ? translation.GivefirearmDescription : _description;
+            Aliases = translation.GivefirearmAliases;
+            Log.Debug("Loaded GiveFirearm command.", translation.Debug, "GhostSpectator");
         }
-
-        public string Command { get; }
-
-        public string[] Aliases { get; }
-
-        public string Description { get; }
 
         public string[] Usage { get; } = new string[]
         {
-            "ItemType/\"list\""
+            "%item%/list"
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
@@ -52,6 +47,12 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = translation.NoPerms;
                 return false;
             }
+            Player commandsender = Player.Get(sender);
+            if (!commandsender.IsGhost())
+            {
+                response = translation.NotGhostSelf;
+                return false;
+            }
             if (arguments.IsEmpty())
             {
                 response = $"{translation.Usage}: {this.DisplayCommandUsage()}.";
@@ -59,7 +60,7 @@ namespace GhostSpectator.Commands.ClientConsole
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.AvailableFirearms}:" + string.Join("\n- ", from g in InventoryItemLoader.AvailableItems where g.Value.Category == ItemCategory.Firearm select g.Key);
+                response = $"{translation.FirearmList}:" + string.Join("\n- ", from g in InventoryItemLoader.AvailableItems where g.Value.Category == ItemCategory.Firearm select g.Key);
                 return true;
             }
             if (!Enum.TryParse(arguments.At(0), out ItemType itemType))
@@ -67,16 +68,14 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = translation.NotItemtype;
                 return false;
             }
-            Player commandsender = Player.Get(sender);
-            ItemBase item = commandsender.AddItem(itemType);
-            if (item.Category != ItemCategory.Firearm)
+            bool isFirearm = InventoryItemLoader.AvailableItems.Any(i => i.Key == itemType && i.Value.Category == ItemCategory.Firearm);    
+            if (!isFirearm)
             {
                 response = translation.OnlyFirearm;
-                commandsender.RemoveItem(item);
                 return false;
-            }
-            Firearm firearm = item as Firearm;
-            if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(commandsender.ReferenceHub, out Dictionary<ItemType, uint> dictionary) && dictionary.TryGetValue(item.ItemTypeId, out uint code))
+            }        
+            Firearm firearm = commandsender.AddItem(itemType) as Firearm;
+            if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(commandsender.ReferenceHub, out Dictionary<ItemType, uint> dictionary) && dictionary.TryGetValue(itemType, out uint code))
             {
                 firearm.ApplyAttachmentsCode(code, true);
             }
@@ -86,10 +85,16 @@ namespace GhostSpectator.Commands.ClientConsole
             return true;
         }
 
-        internal static readonly string _command = "givefirearm";
+        internal const string _command = "givefirearm";
 
-        internal static readonly string _description = "Give yourself a firearm.";
+        internal const string _description = "Give yourself a firearm or print a list of available firearms.";
 
         internal static readonly string[] _aliases = new string[] { "firearm", "givegun", "gun" };
+
+        private readonly CommandTranslation translation;
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }
