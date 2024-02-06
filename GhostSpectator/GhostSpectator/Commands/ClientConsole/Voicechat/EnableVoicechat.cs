@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,31 +8,27 @@ using CommandSystem;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
-namespace GhostSpectator.Commands.ClientConsole
+namespace GhostSpectator.Commands.ClientConsole.Voicechat
 {
-    public class EnableVoicechannel : ICommand, IUsageProvider
+    [CommandHandler(typeof(ClientCommandHandler))]
+    public class EnableVoicechat : ICommand, IUsageProvider
     {
-        public EnableVoicechannel(string command, string description, string[] aliases)
+        public EnableVoicechat()
         {
-            Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            translation = CommandTranslation.commandTranslation;
+            Command = !string.IsNullOrWhiteSpace(translation.EnableVoicechatCommand) ? translation.EnableVoicechatCommand : _command;
+            Description = !string.IsNullOrWhiteSpace(translation.EnableVoicechatDescription) ? translation.EnableVoicechatDescription : _description;
+            Aliases = translation.EnableVoicechatAliases;
+            Log.Debug("Loaded EnableVoicechat command.", translation.Debug, "GhostSpectator");
         }
-
-        public string Command { get; }
-
-        public string[] Aliases { get; }
-
-        public string Description { get; }
 
         public string[] Usage { get; } = new string[]
         {
-            "\"scp\"/\"dead\"/\"ghost\"/\"all\""
+            "scp/dead/ghost/all"
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
@@ -48,30 +44,25 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = translation.NoPerms;
                 return false;
             }
-            if (!Round.IsRoundStarted)
-            {
-                response = translation.BeforeRound;
-                return false;
-            }
             if (arguments.IsEmpty())
             {
                 response = $"{translation.Usage}: {this.DisplayCommandUsage()}.";
                 return false;
             }
-            if (!arguments.Any(a => chats.Keys.Contains(a.ToLower()) || a.ToLower() == "all"))
+            if (!arguments.Any(a => availableVoicechats.Keys.Contains(a.ToLower()) || a.ToLower() == "all"))
             {
                 response = translation.WrongArgument;
                 return false;
             }
             Player commandsender = Player.Get(sender);
-            List<string> voicechannels = arguments.Any(a => a.ToLower() == "all") ? chats.Keys.ToList() : arguments.ToList();
+            List<string> voicechats = arguments.Any(a => a.ToLower() == "all") ? availableVoicechats.Keys.ToList() : arguments.ToList();
             StringBuilder result = new ($"{translation.EnableVoicechatSuccess}:");
             bool success = false;
-            foreach (string argument in voicechannels)
+            foreach (string chat in voicechats)
             {
-                if (chats.Keys.Contains(argument) && commandsender.CheckPermission($"gs.listen.{argument}") && commandsender.TemporaryData.Add(chats[argument].Key, "1"))
+                if (availableVoicechats.Keys.Contains(chat) && commandsender.CheckPermission($"gs.listen.{chat}") && commandsender.TemporaryData.Add(availableVoicechats[chat].Key, "1"))
                 {
-                    result.Append($" {chats[argument].Value},");
+                    result.Append($" {availableVoicechats[chat].Value},");
                     success = true;
                 }
             }
@@ -80,17 +71,23 @@ namespace GhostSpectator.Commands.ClientConsole
             return success;
         }
 
-        internal static readonly string _command = "enablevoicechannel";
-
-        internal static readonly string _description = "Enable listening to Ghosts, SCP or Spectator chat. You can provide multiple arguments or just type \"all\".";
-
-        internal static readonly string[] _aliases = new string[] { "evc" };
-
-        private readonly Dictionary<string, KeyValuePair<string, string>> chats = new()
+        internal static readonly Dictionary<string, KeyValuePair<string, string>> availableVoicechats = new()
         {
             { "scp", new ("VcScpChat", "SCPs") },
             { "dead", new ("VcSpectator", "Spectators") },
             { "ghost", new ("ListenGhosts", "Ghosts") }
         };
+
+        internal const string _command = "enablevoicechat";
+
+        internal const string _description = "Enable listening to selected voicechat(s) as a Ghost.";
+
+        internal static readonly string[] _aliases = new string[] { "evc" };
+
+        private readonly CommandTranslation translation;
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }
