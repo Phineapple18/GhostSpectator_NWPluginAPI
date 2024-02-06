@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,31 +11,27 @@ using NWAPIPermissionSystem;
 using PluginAPI.Core;
 using Utils.Networking;
 
-namespace GhostSpectator.Commands.ClientConsole
+namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 {
+    [CommandHandler(typeof(ClientCommandHandler))]
     public class DestroyTarget: ICommand, IUsageProvider
     {
-        public DestroyTarget (string command, string description, string[] aliases)
+        public DestroyTarget ()
         {
-            Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
-            Aliases = !aliases.IsEmpty() ? aliases : _aliases;
+            translation = CommandTranslation.commandTranslation;
+            Command = !string.IsNullOrWhiteSpace(translation.DestroytargetCommand) ? translation.DestroytargetCommand : _command;
+            Description = !string.IsNullOrWhiteSpace(translation.DestroytargetDescription) ? translation.DestroytargetDescription : _description;
+            Aliases = translation.DestroytargetAliases;
+            Log.Debug("Loaded DestroyTarget command.", translation.Debug, "GhostSpectator");
         }
-
-        public string Command { get; }
-
-        public string[] Aliases { get; }
-
-        public string Description { get; }
 
         public string[] Usage { get; } = new string[]
         {
-            "NetId/\"list\""
+            "[Net ID]/list"
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            CommandTranslation translation = CommandTranslation.loadedTranslation;
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
@@ -54,10 +50,10 @@ namespace GhostSpectator.Commands.ClientConsole
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhost;
+                response = translation.NotGhostSelf;
                 return false;
             }
-            GhostComponent component = commandsender.GetComponent<GhostComponent>();
+            GhostComponent component = commandsender.GetGhostComponent();
             if (component.shootingTargets.Count == 0)
             {
                 response = translation.NoTargets;
@@ -73,28 +69,34 @@ namespace GhostSpectator.Commands.ClientConsole
                 response = $"{translation.TargetList.Replace("%num%", component.shootingTargets.Count().ToString())}:\n- {string.Join("\n- ", from id in component.shootingTargets select id.Key)}";
                 return false;
             }
-            if (!uint.TryParse(arguments.At(0), out uint targetid))
+            if (!uint.TryParse(arguments.At(0), out uint targetId))
             {
                 response = translation.WrongFormat;
                 return false;
             }
-            if (!component.shootingTargets.Keys.Contains(targetid))
+            if (!component.shootingTargets.Keys.Contains(targetId))
             {
                 response = translation.NoTargetId;
                 return false;
             }
-            AdminToyBase target = NetworkUtils.SpawnedNetIds[targetid].GetComponent<AdminToyBase>();
+            AdminToyBase target = NetworkUtils.SpawnedNetIds[targetId].GetComponent<AdminToyBase>();
             NetworkServer.Destroy(target.gameObject);
-            component.shootingTargets.Remove(targetid);
-            Log.Debug($"Player {commandsender.Nickname} destroyed a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.DestroyTarget");
+            component.shootingTargets.Remove(targetId);
             response = translation.DestroytargetSuccess;
+            Log.Debug($"Player {commandsender.Nickname} destroyed a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.DestroyTarget");
             return true;
         }
 
-        internal static readonly string _command = "destroytarget";
+        internal const string _command = "destroytarget";
 
-        internal static readonly string _description = "Destroy your shooting target by typing its NetId or print a list of all your currently spawned targets.";
+        internal const string _description = "Destroy your shooting target or print a list of your targets.";
 
-        internal static readonly string[] _aliases = new string[] { "dt" };
+        internal static readonly string[] _aliases = new string[] { "dstg", "dtg" };
+
+        private readonly CommandTranslation translation;
+
+        public string Command { get; }
+        public string[] Aliases { get; }
+        public string Description { get; }
     }
 }
