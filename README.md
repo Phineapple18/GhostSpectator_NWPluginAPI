@@ -27,7 +27,7 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 |debug|bool|false|Is debug enabled?|
 |ghost_nickname|string|GHOST|Nickname of a Ghost, that is displayed in place of a role.|
 |ghost_color|string|'#A0A0A0'|Color of a Ghost nickname.|
-|ghost_health|float|150|Max Ghost health.|
+|ghost_health|float|150|Maximum health of a Ghost.|
 |spawn_message|string|<size=50><color=%colour%>You are a Ghost!\</color>\n<size=30>Drop the %TeleportItem% to teleport to a random player.\</size>|Broadcast sent to a Ghost upon spawn.|
 |spawn_message_duration|ushort|5|Duration of a spawn message.|
 |spawn_positions|List\<string>|- 9, 1002, 1|Ghost spawn positions.|
