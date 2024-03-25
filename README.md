@@ -41,9 +41,10 @@ Plugin, that allows players to change into Ghosts: Tutorials, that are undetecta
 |target_limit|int|1|How many shooting targets can one Ghost have spawned?|
 |shooting_areas|Dictionary\<string, string>| 10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.|
 |hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity, if they have enabled listening to Ghosts.|
+|duel_request_received|string|Player <color=red>%player%\</color> has challenged you to a duel!\nType <color=yellow>.duel a (PlayerNickname)\</color> within <color=red>%time%s\</color> to accept the request or let it expire to reject.|Hint sent to a Ghost, when challenged to a duel.|
 |duel_won|string|You have won the duel against <color=red>%player%\</color>.|Hint shown to a Ghost, who won a duel.|
 |duel_lost|string|You have lost the duel against <color=red>%player%\</color>.|Hint shown to a Ghost, who lost a duel.|
-|duel_aborted|string|Your duel has been aborted.|Broadcast sent to a Ghost, when duel is aborted.|
+|duel_aborted|string|Your duel has been aborted.|Hint shown to a Ghost, when duel is aborted.|
 |duel_request_time|float|10f|Time, after which the duel offer will expire.|
 
 ## Command translations
@@ -72,13 +73,16 @@ Translations for commands are in separate file "commandtranslation.yml", in the 
 - gs.firearm - allows a Ghost to give themselves a firearm via command
 - gs.item - allows a Ghost to drop and throw items and use Particle Disruptor
 - gs.listen.dead - allows a Ghost to hear Spectators via command
+- gs.autolisten.dead - allows above automatically, when changed to a Ghost
 - gs.listen.ghost - allows a Ghost to hear other Ghosts via RoundSummary chat, if they are outside Proximity chat or further than certain distance via command
+- gs.autolisten.ghost - allows above automatically, when changed to a Ghost
 - gs.listen.scp - allows a Ghost to hear SCPs via command
+- gs.autolisten.scp - allows above automatically, when changed to a Ghost
 - gs.noclip - allows a Ghost to have noclip permitted
-- gs.spawn.player - allows a player to (de)spawn any player to and from Ghost
-- gs.spawn.self - allows a player to (de)spawn themselves to and from Ghost
+- gs.spawn.player - allows a player to (de)spawn any player to and from a Ghost
+- gs.spawn.self - allows a player to (de)spawn themselves to and from a Ghost
 - gs.target - allows a player to (de)spawn their shooting target
-- gs.warhead - allows a player to (de)spawn themselves and others to and from Ghost after warhead detonation
+- gs.warhead - allows a player to (de)spawn themselves and others to and from a Ghost after warhead detonation
 
 ## Credits
 - Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
