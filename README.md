@@ -1,22 +1,25 @@
 # GhostSpectator_NWAPI
-Plugin, that allows players to change into Ghosts: Tutorials, that are undetectable to alive players and have no influence on a course of the game.
+Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that are undetectable to alive players and have no influence on a course of the game. Depending on the config, Ghosts can perform various activities, such as teleport to alive players, practice on shooting targets or challenge another Ghost to a duel.
 
 ![Logo](https://github.com/Phineapple18/GhostSpectator_NWPluginAPI/blob/main/Images/GS_Thumbnail.png)
 
 ## Features
-- Ghosts can teleport to a random alive player by dropping an item declared in the config (a Lantern by default).
-- Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on the config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
-- Ghosts can't pick up or use items and interact with objects (partially except the shooting targets).
 - Ghosts can pass through most of the doors.
+- Ghosts can teleport to a random alive player by dropping an item of type declared in the config (a Lantern by default), if different that None. There is an option to exclude certain roles, that Ghosts won't be able to teleport to.
+- Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on the config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
+- Ghosts can't pick up or use items.
+- Ghosts can't interact with objects (except resetting the shooting targets).
 - Depending on the assigned permissions, Ghosts can:
   * noclip
+  * drop or throw items or throwables, except the teleport item
   * spawn themselves a shooting target
-  * give themselves a firearm, that will be automatically refilled, when emptied
-  * listen to SCP and Spectators chats
-  * listen to other Ghosts via RoundSummary chat, if they are outside Proximity chat or further than certain distance
+  * give themselves a firearm, which will be automatically refilled, when emptied
+  * use a Particle Disruptor 
+  * listen to SCP and Spectators chats (via command or automatically)
+  * listen to other Ghosts via RoundSummary chat, if they are far enough (via command or automatically)
   * challenge other Ghosts to a duel
 
-## Required plugins and dependencies (1.2.1): 
+## Required plugins and dependencies (1.2.2): 
 - [NWAPIPermissionSystem](https://github.com/CedModV2/NWAPIPermissionSystem/releases/tag/0.0.6) by ced777ric - plugin
 - [Harmony 2.2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.2.0) by pardeike - dependency (attached to one of the previous releases)
 
