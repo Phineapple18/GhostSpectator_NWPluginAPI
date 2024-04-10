@@ -16,7 +16,7 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
   * give themselves a firearm, which will be automatically refilled, when emptied
   * use a Particle Disruptor 
   * listen to SCP and Spectators chats (via command or automatically)
-  * listen to other Ghosts via RoundSummary chat, if they are far enough (via command or automatically)
+  * listen to other Ghosts via RoundSummary chat, if they are not within Proximity Chat or further than configurable distance (via command or automatically)
   * challenge other Ghosts to a duel
 
 ## Required plugins and dependencies (1.2.2): 
@@ -45,13 +45,13 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
 ## Translation
 
 ## Remote Admin Commands
-- ghostspectator - Parent command for GhostSpectator. Subcommands: despawn, list, spawn.
+- ghostspectator - Parent command for GhostSpectator. ***Subcommands***: despawn, list, spawn.
 - despawn - Despawn selected player(s) from Ghost to Spectator.
 - list - Print a list of all Ghosts.
 - spawn - Spawn selected player(s) as a Ghost.
 
 ## Client Console Commands
-- duel - Challenge another Ghost to a duel by typing their nickname. New duel request will replace old one. Also parent command for Duel. Subcommands: abandon, accept, cancel, list.
+- duel - Challenge another Ghost to a duel by typing their nickname. New duel request will replace old one. Also parent command for Duel. ***Subcommands***: abandon, accept, cancel, list.
 - accept - Accept a duel offer from player. If you have multiple offers, first one will be accepted, unless you provide a player nickname.
 - cancel - Cancel your duel request or current duel.
 - list (duel) - Print a list of all players, who challenged you to a duel.
@@ -66,9 +66,10 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
 - gs.duel - allows a Ghost to challenge another Ghost to a duel
 - gs.firearm - allows a Ghost to give themselves a firearm via command
 - gs.item - allows a Ghost to drop and throw items and use Particle Disruptor
+- gs.list - allows player to print list of Ghosts
 - gs.listen.dead - allows a Ghost to hear Spectators via command
 - gs.autolisten.dead - allows above automatically, when changed to a Ghost
-- gs.listen.ghost - allows a Ghost to hear other Ghosts via RoundSummary chat, if they are outside Proximity chat or further than certain distance via command
+- gs.listen.ghost - allows a Ghost to hear other Ghosts via RoundSummary chat, if they are not within Proximity chat or further than configurable distance via command
 - gs.autolisten.ghost - allows above automatically, when changed to a Ghost
 - gs.listen.scp - allows a Ghost to hear SCPs via command
 - gs.autolisten.scp - allows above automatically, when changed to a Ghost
