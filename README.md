@@ -38,11 +38,11 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
 |always_see_ghosts|bool|false|Should Spectators be able to see Ghosts, if spectated player is not a Ghost?|
 |filmmaker_see_ghosts|bool|false|Should Filmmakers be able to see Ghosts?|
 |target_limit|int|1|How many shooting targets can one Ghost have spawned?|
-|shooting_areas|Dictionary\<string, string>| 10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.|
+|shooting_areas|Dictionary\<string, string>|10, 995, -12: -10, 996, -4<br/> 68, 983, -36: 142, 985, -12|Areas, where Ghosts can spawn a shooting target. For each area, provide a pair of positions, their coordinates will be used as a perimeter along every axis.|
 |hear_distance|float|10f|Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity, if they have enabled listening to Ghosts.|
 |duel_request_time|float|10f|Time, after which the duel offer will expire.|
 
-## Translations
+## Translation
 
 ## Remote Admin Commands
 - ghostspectator - Parent command for GhostSpectator. Subcommands: despawn, list, spawn.
