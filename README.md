@@ -5,7 +5,7 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
 
 ## Features
 - Ghosts can pass through most of the doors.
-- Ghosts can teleport to a random alive player by dropping an item of type declared in the config (a Lantern by default), if different that None. There is an option to exclude certain roles, that Ghosts won't be able to teleport to.
+- Ghosts can teleport to a random alive player by dropping an item of type declared in the config (a Lantern by default), if different than None. There is an option to exclude certain roles, that Ghosts won't be able to teleport to.
 - Ghosts are always visible to each other, Spectators spactating a Ghost and Overwatchers. Depending on the config, Ghosts can be visible to Spectators spectating a non-Ghost player and Filmmakers.
 - Ghosts can't pick up or use items.
 - Ghosts can't interact with objects (except resetting the shooting targets).
@@ -43,15 +43,40 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
 |duel_request_time|float|10f|Time, after which the duel offer will expire.|
 
 ## Translation
+The translation file is in the same folder as config file and allows you to customize messages shown to Ghosts, commands and their responses.
+
+**MISCELLANOUS TRANSLATION.**
+|Name|Type|Default value|Description|
+|---|---|---|---|
+|ghost_nickname|string|GHOST|Nickname of a Ghost, that is displayed in place of a role.|
+|spawn_message|string|<size=50><color=%colour%>You are a Ghost!\</color\>\n<size=30>Drop the %TeleportItem% to teleport to a random player.\</size\>|Broadcast sent to a Ghost upon spawn.|
+|teleport_success|string|You have been teleported to <color=green>%player%</color>|Hints shown to a Ghost upon teleport attempt.|
+|teleport_fail|string|There is nobody you can teleport to.|-|
+|duel_abandoned|string|Player <color=red>%player%\</color\> has cancelled a duel with you.|Duel related hints shown to a Ghost|
+|duel_aborted|string|Your duel with <color=red>%player%\</color\> has been aborted.|-|
+|duel_prepare|string|Prepare for duel!|-|
+|duel_started|string|Duel has started!|-|
+|duel_won|string|You have won the duel against <color=green>%player%\</color\>.|-|
+|duel_lost|string|You have lost the duel against <color=red>%player%\</color\>.|-|
+|duel_request_cancelled|string|Player <color=red>%player%\</color\> has cancelled a duel request with you.|-|
+|duel_request_expired|string|Your duel request for <color=red>%player%\</color\> has expired.|-|
+|duel_request_received|string|Player <color=red>%player%\</color\> has challenged you to a duel!\nType <color=yellow>.duel a (PlayerNickname)\</color\> within <color=red>%time%s\</color\> to accept the request or let it expire to reject.|-|
+
+**COMMANDS TRANSLATION.**
+|**Name**|**Type**|**Default value**|**Description**|
+|---|---|---|---|
+|debug|bool|false|Should debug be enabled for command registering/loading?|
+
+This section allows you to customize the the commands, their aliases and descriptions, and all command responses. All commands are listed below.
 
 ## Remote Admin Commands
-- ghostspectator - Parent command for GhostSpectator. ***Subcommands***: despawn, list, spawn.
+- ghostspectator - Parent command for GhostSpectator.<br/>***Subcommands***: despawn, list, spawn.
 - despawn - Despawn selected player(s) from Ghost to Spectator.
 - list - Print a list of all Ghosts.
 - spawn - Spawn selected player(s) as a Ghost.
 
 ## Client Console Commands
-- duel - Challenge another Ghost to a duel by typing their nickname. New duel request will replace old one. Also parent command for Duel. ***Subcommands***: abandon, accept, cancel, list.
+- duel - Challenge another Ghost to a duel by typing their nickname. New duel request will replace old one. Also parent command for Duel.<br/>***Subcommands***: abandon, accept, cancel, list.
 - accept - Accept a duel offer from player. If you have multiple offers, first one will be accepted, unless you provide a player nickname.
 - cancel - Cancel your duel request or current duel.
 - list (duel) - Print a list of all players, who challenged you to a duel.
@@ -64,20 +89,20 @@ Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that ar
 
 ## Permissions
 - gs.duel - allows a Ghost to challenge another Ghost to a duel
-- gs.firearm - allows a Ghost to give themselves a firearm via command
+- gs.firearm - allows a Ghost to give themselves a firearm (via command)
 - gs.item - allows a Ghost to drop and throw items and use Particle Disruptor
 - gs.list - allows player to print list of Ghosts
-- gs.listen.dead - allows a Ghost to hear Spectators via command
+- gs.listen.dead - allows a Ghost to hear Spectators (via command)
 - gs.autolisten.dead - allows above automatically, when changed to a Ghost
-- gs.listen.ghost - allows a Ghost to hear other Ghosts via RoundSummary chat, if they are not within Proximity chat or further than configurable distance via command
+- gs.listen.ghost - allows a Ghost to hear other Ghosts via RoundSummary chat, if they are not within Proximity chat or further than configurable distance (via command)
 - gs.autolisten.ghost - allows above automatically, when changed to a Ghost
-- gs.listen.scp - allows a Ghost to hear SCPs via command
+- gs.listen.scp - allows a Ghost to hear SCPs (via command)
 - gs.autolisten.scp - allows above automatically, when changed to a Ghost
 - gs.noclip - allows a Ghost to have noclip permitted
-- gs.spawn.player - allows a player to (de)spawn any player to and from a Ghost
+- gs.spawn.player - allows a player to (de)spawn player(s) to and from a Ghost
 - gs.spawn.self - allows a player to (de)spawn themselves to and from a Ghost
 - gs.target - allows a player to (de)spawn their shooting target
-- gs.warhead - allows a player to (de)spawn themselves and others to and from a Ghost after warhead detonation
+- gs.warhead - allows a player to remain a Ghost and use *ghostme* and *spawn* commands after warhead detonation
 
 ## Credits
 - Original plugin creator: [Thundermaker300](https://github.com/Thundermaker300)
