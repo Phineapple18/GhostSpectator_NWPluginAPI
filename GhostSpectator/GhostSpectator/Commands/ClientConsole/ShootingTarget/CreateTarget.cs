@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,101 +6,102 @@ using System.Threading.Tasks;
 
 using AdminToys;
 using CommandSystem;
+using GhostSpectator.Extensions;
 using Mirror;
 using NWAPIPermissionSystem;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
-using Utils.Networking;
 
 namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 {
     [CommandHandler(typeof(ClientCommandHandler))]
     public class CreateTarget : ICommand, IUsageProvider
     {
-        public CreateTarget ()
+        public CreateTarget()
         {
-            translation = CommandTranslation.commandTranslation;
+            translation = Translation.AccessTranslation();
+            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
             Command = !string.IsNullOrWhiteSpace(translation.CreatetargetCommand) ? translation.CreatetargetCommand : _command;
-            Description = !string.IsNullOrWhiteSpace(translation.CreatetargetDescription) ? translation.CreatetargetDescription : _description;
+            Description = translation.CreatetargetDescription;
             Aliases = translation.CreatetargetAliases;
-            Log.Debug("Loaded CreateTarget command.", translation.Debug, "GhostSpectator");
+            Usage = new[] { string.Join("/", targetNames.Keys.ToArray())};
+            Log.Debug($"Registered {this.Command} command.", translation.Debug, Translation.pluginName);
         }
-
-        public string[] Usage { get; } = new string[]
-        {
-            "dboy/sport/bin"
-        };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
+                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
                 return false;
             }
             if (sender == null)
             {
                 response = translation.SenderNull;
+                Log.Debug("Command sender is null.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.target"))
             {
                 response = translation.NoPerms;
+                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhostSelf;
+                response = translation.NotGhost;
+                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            if (Plugin.Singleton.PluginConfig.TargetLimit <= 0)
+            if (Config.TargetLimit <= 0)
             {
-                response = translation.TargetNotAllowed;
+                response = translation.NoTargetsAllowed;
+                Log.Debug("Spawning shooting targets is not allowed.", Config.Debug, commandName);
                 return false;
             }
-            if (!Plugin.shootingAreas.Any(a => a.Contains(commandsender.Position)))
+            if (!OtherExtensions.ShootingRanges.Any(a => a.Contains(commandsender.Position)))
             {
                 response = translation.WrongArea;
+                Log.Debug($"Player {commandsender.Nickname} can't spawn a shooting target outside of shooting range(s).", Config.Debug, commandName);
                 return false;
             }
             IFpcRole fpcRole = commandsender.RoleBase as IFpcRole;
             if (!fpcRole.FpcModule.IsGrounded)
             {
                 response = translation.NotGrounded;
+                Log.Debug($"Player {commandsender.Nickname} must stand on the ground to spawn a shooting target.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{translation.Usage}: {this.DisplayCommandUsage()}.";
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments for command.", Config.Debug, commandName);
                 return false;
             }
             AdminToyBase targetBase = null;
-            AdminToyBase target = null;
             try
             {
-                NetworkClient.prefabs.Values.First(a => a.TryGetComponent<AdminToyBase>(out targetBase) && targetBase.CommandName == this.targetNames[arguments.At(0)]);
+                NetworkClient.prefabs.Values.First(a => a.TryGetComponent<AdminToyBase>(out targetBase) && targetBase.CommandName == targetNames[arguments.At(0)]);
             }
             catch (Exception)
             {
                 response = translation.WrongArgument;
+                Log.Debug($"Player {commandsender.Nickname} provided nonexistent argument: {arguments.ElementAt(0)}.", Config.Debug, commandName);
                 return false;
             }
             GhostComponent component = commandsender.GetGhostComponent();
-            if (component.shootingTargets.Count >= Plugin.Singleton.PluginConfig.TargetLimit)
+            if (component.ShootingTargets.Count >= Config.TargetLimit)
             {
-                var targetToRemove = component.shootingTargets.ElementAt(0);
-                if (NetworkUtils.SpawnedNetIds.TryGetValue(targetToRemove.Key, out NetworkIdentity networkIdentity) && networkIdentity.TryGetComponent<AdminToyBase>(out AdminToyBase adminToy))
-                {
-                    NetworkServer.Destroy(adminToy.gameObject);
-                }
-                component.shootingTargets.Remove(targetToRemove.Key);
+                OtherExtensions.DestroyShootingTarget(component, component.ShootingTargets.ElementAt(0));
+                Log.Debug($"Destroyed first shooting target due to target limit ({Config.TargetLimit}).", Config.Debug, commandName);
             }
-            target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
+            AdminToyBase target = UnityEngine.Object.Instantiate<AdminToyBase>(targetBase);
             target.OnSpawned(commandsender.ReferenceHub, arguments);
-            component.shootingTargets.Add(target.netId, target); 
-            response = translation.CreatetargetSuccess.Replace("%id%", target.netId.ToString());
-            Log.Debug($"Player {commandsender.Nickname} created a {target.CommandName} with Id {target.netId}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.CreateTarget");
+            component.ShootingTargets.Add(target);
+            response = translation.CreatetargetSuccess.Replace("%targetname%", target.CommandName).Replace("%targetid%", target.netId.ToString());
+            Log.Debug($"Player {commandsender.Nickname} created a shooting target ({target.CommandName}) with ID {target.netId}.", Config.Debug, commandName);
             return true;
         }
 
@@ -108,19 +109,24 @@ namespace GhostSpectator.Commands.ClientConsole.ShootingTarget
 
         internal const string _description = "Create a shooting target.";
 
-        internal static readonly string[] _aliases = new string[] { "cstg", "ctg" };
+        internal static readonly string[] _aliases = new[] { "cstg", "ctg" };
 
-        private readonly Dictionary<string, string> targetNames = new ()
+        private readonly Dictionary<string, string> targetNames = new()
         {
             { "dboy", "TargetDBoy" },
             { "sport", "TargetSport" },
             { "bin", "TargetBinary" }
         };
 
-        private readonly CommandTranslation translation;
+        private readonly string commandName;
+
+        private readonly Translation translation;
 
         public string Command { get; }
-        public string[] Aliases { get; }
         public string Description { get; }
+        public string[] Aliases { get; }
+        public string[] Usage { get; }
+        public bool SanitizeResponse { get; }
+        private static Config Config => Plugin.Singleton.pluginConfig;
     }
 }
