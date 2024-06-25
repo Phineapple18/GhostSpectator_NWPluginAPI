@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
-using MEC;
+using GhostSpectator.Extensions;
 using NorthwoodLib.Pools;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
@@ -18,21 +18,22 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
     {
         public DuelParent()
         {
-            translation = CommandTranslation.commandTranslation ??= CommandTranslation.PrepareTranslations();
+            translation = Translation.AccessTranslation();
+            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
             Command = !string.IsNullOrWhiteSpace(translation.DuelParentCommand) ? translation.DuelParentCommand : _command;
-            Description = !string.IsNullOrWhiteSpace(translation.DuelParentDescription) ? translation.DuelParentDescription : _description;
+            Description = translation.DuelParentDescription;
             Aliases = translation.DuelParentAliases;
-            Log.Debug("Loaded Duel parent command.", translation.Debug, "GhostSpectator");
+            Log.Debug($"Registered {this.Command} parent command.", translation.Debug, Translation.pluginName);
             this.LoadGeneratedCommands();
         }
 
         public sealed override void LoadGeneratedCommands()
         {
-            this.RegisterCommand(new Abandon(translation.AbandonCommand, translation.AbandonDescription, translation.AbandonAliases));
             this.RegisterCommand(new Accept(translation.AcceptCommand, translation.AcceptDescription, translation.AcceptAliases));
             this.RegisterCommand(new Cancel(translation.CancelCommand, translation.CancelDescription, translation.CancelAliases));
-            this.RegisterCommand(new ListDuel(translation.ListDuelCommand, translation.ListDuelDescription, translation.ListDuelAliases));
-            Log.Info($"Registered {this.AllCommands.Count()} command(s) for DuelParent.", "GhostSpectator");
+            this.RegisterCommand(new ListDuel(translation.ListduelCommand, translation.ListduelDescription, translation.ListduelAliases));
+            this.RegisterCommand(new Reject(translation.RejectCommand, translation.RejectDescription, translation.RejectAliases));
+            Log.Debug($"Registered {this.AllCommands.Count()} command(s) for DuelParent.", translation.Debug, Translation.pluginName);
         }
 
         protected override bool ExecuteParent(ArraySegment<string> arguments, ICommandSender sender, out string response)
@@ -40,6 +41,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
+                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
@@ -56,28 +58,44 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
             if (sender == null)
             {
                 response = translation.SenderNull;
+                Log.Debug("Command sender is null.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.duel"))
             {
                 response = translation.NoPerms;
+                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhostSelf;
+                response = translation.NotGhost;
+                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            if (list.ContainsKey(commandsender))
+            GhostComponent component = commandsender.GetGhostComponent();
+            if (component.DuelPartner != null)
             {
-                response = translation.AlreadyPendingDuel.Replace("%player%", list[commandsender].Nickname);
+                response = translation.ActiveDuelSelf.Replace("%playernick%", component.DuelPartner.Nickname);
+                Log.Debug($"Player {commandsender.Nickname} has already active duel with {component.DuelPartner.Nickname}.", Config.Debug, commandName);
                 return false;
             }
-            List<Player> players = Player.GetPlayers().Where(p => p != commandsender && p.Nickname == arguments.At(0) && p.IsGhost()).ToList();
+            List<Player> players = new();
+            string nickname = string.Join(" ", arguments);
+            var ghostList = GhostExtensions.GhostPlayerList.Where(p => p != commandsender).ToList();
+            if (ghostList.Any(p => string.Equals(p.Nickname, nickname, StringComparison.OrdinalIgnoreCase)))
+            {
+                players = ghostList.Where(p => string.Equals(p.Nickname, nickname, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            else
+            {
+                players = ghostList.Where(p => p.Nickname.IndexOf(nickname, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+            }
             if (players.IsEmpty())
             {
                 response = translation.NoGhosts;
+                Log.Debug($"There is no Ghost, that is not {commandsender.Nickname}, with/containing provided nickname.", Config.Debug, commandName);
                 return false;
             }
             Player opponent = players.ElementAt(0);
@@ -91,65 +109,38 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                     }
                 }
             }
-            if (opponent.GetGhostComponent().duelPartner != null)
+            if (opponent.GetGhostComponent().DuelPartner != null)
             {
-                response = translation.AlreadyActiveDuel.Replace("%player%", opponent.Nickname);
+                response = translation.ActiveDuelOther.Replace("%playernick%", opponent.Nickname);
+                Log.Debug($"Player {commandsender.Nickname} can't challenge {opponent.Nickname} to duel as they already have active duel.", Config.Debug, commandName);
                 return false;
             }
-            list.Add(commandsender, opponent);
-            Config config = Plugin.Singleton.PluginConfig;
-            Timing.CallDelayed(config.DuelRequestTime, delegate ()
+            if (DuelExtensions.DuelRequests.TryGetValue(commandsender, out Tuple<Player, int> previousOpponent) && previousOpponent.Item1 == opponent)
             {
-                if (list.Any(kvp => kvp.Key == commandsender && kvp.Value == opponent))
-                {
-                    list.Remove(commandsender);
-                    commandsender.ReceiveHint(translation.DuelRequestExpired.Replace("%player%", opponent.Nickname), 5);
-                }
-            });
-            opponent.ReceiveHint(translation.DuelRequestReceived.Replace("%player", commandsender.Nickname).Replace("%time%", config.DuelRequestTime.ToString()), 7);
-            response = translation.DuelParentSuccess.Replace("%player%", opponent.Nickname);
-            Log.Debug($"Player {commandsender.Nickname} has challenged {opponent.Nickname} to a duel.", config.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.Duel");
-            return true;
-        }
-
-        internal static IEnumerator<float> PrepareDuel(Player player1, Player player2)
-        {
-            player1.ReceiveHint($"{translation.DuelPrepare}", 5);
-            player2.ReceiveHint($"{translation.DuelPrepare}", 5);
-            yield return Timing.WaitForSeconds(5f);
-            int i = 5;
-            while (player1.IsGhost() && player2.IsGhost())
-            {
-                if (i == 0)
-                {
-                    player1.GetGhostComponent().duelPartner = player2;
-                    player2.GetGhostComponent().duelPartner = player1;
-                    player1.ReceiveHint($"{translation.DuelStarted}", 5);
-                    player2.ReceiveHint($"{translation.DuelStarted}", 5);
-                    yield break;
-                }
-                player1.ReceiveHint($"{i}");
-                player2.ReceiveHint($"{i}");
-                i--;
-                yield return Timing.WaitForSeconds(1f);
+                response = translation.RequestAlreadySent;
+                Log.Debug($"Player {commandsender.Nickname} already sent duel request to {opponent.Nickname}.", Config.Debug, commandName);
+                return false;
             }
-            player1.ReceiveHint($"{translation.DuelAborted}", 5);
-            player2.ReceiveHint($"{translation.DuelAborted}", 5);
-            yield break;
+            commandsender.RequestDuel(opponent, previousOpponent?.Item1);
+            response = translation.DuelParentSuccess.Replace("%playernick%", opponent.Nickname);
+            Log.Debug($"Player {commandsender.Nickname} has challenged {opponent.Nickname} to a duel.", Config.Debug, commandName);
+            return true;
         }
 
         internal const string _command = "duel";
 
-        internal const string _description = "Challenge another Ghost to a duel by typing their nickname. Also parent command for Duel.";
+        internal const string _description = "Challenge another Ghost to a duel by typing their nickname. New duel request will replace old one. Also parent command for Duel.";
 
         internal static readonly string[] _aliases = Array.Empty<string>();
 
-        internal static Dictionary<Player, Player> list = new ();
+        private readonly string commandName;
 
-        private static CommandTranslation translation;
+        private static Translation translation;
 
         public override string Command { get; }
-        public override string[] Aliases { get; }
         public override string Description { get; }
+        public override string[] Aliases { get; }
+        public bool SanitizeResponse { get; }
+        private static Config Config => Plugin.Singleton.pluginConfig;
     }
 }

@@ -10,9 +10,9 @@ using PluginAPI.Core;
 
 namespace GhostSpectator.Commands.ClientConsole.Duel
 {
-    public class ListDuel : ICommand
+    public class Reject : ICommand
     {
-        public ListDuel(string command, string description, string[] aliases)
+        public Reject(string command, string description, string[] aliases)
         {
             translation = Translation.AccessTranslation();
             commandName = $"{Translation.pluginName}.{this.GetType().Name}";
@@ -43,30 +43,54 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
                 Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            if (!DuelExtensions.DuelRequests.ContainsKey(commandsender))
+            if (!DuelExtensions.DuelRequests.Values.Any(p => p.Item1 == commandsender))
             {
                 response = translation.NoDuelRequests;
                 Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
                 return false;
             }
-            response = $"{translation.ListduelSuccess}: \n- {string.Join("\n- ", from kvp in DuelExtensions.DuelRequests where kvp.Value.Item1 == commandsender select kvp.Key.Nickname)}";
+            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
+            Player requester = null;
+            if (arguments.IsEmpty())
+            {
+                foreach (Player player in allRequesters)
+                {
+                    commandsender.RejectDuel(player);
+                }
+                response = translation.RejectSuccessAll;
+                Log.Debug($"Player {commandsender.Nickname} has rejected all duel requests.", Config.Debug, commandName);
+                return true;
+            }
+            else
+            {
+                requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
+                requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+            if (requester == null)
+            {
+                response = translation.NoPlayers;
+                Log.Debug("Provided player(s) doesn't exist.", Config.Debug, commandName);
+                return false;
+            }
+            commandsender.RejectDuel(requester);
+            response = translation.RejectSuccessPlayer.Replace("%playernick%", requester.Nickname);
+            Log.Debug($"Player {commandsender.Nickname} has rejected a duel request from {requester.Nickname}.", Config.Debug, commandName);
             return true;
         }
 
-        internal const string _command = "list";
+        internal const string _command = "reject";
 
-        internal const string _description = "Print a list of all players who challenged you to a duel or a list of Ghosts in your closest vicinity.";
+        internal const string _description = "Reject duel offer from player(s). If you have multiple offers, all of them will be rejected, unless you provide a player nickname.";
 
-        internal static readonly string[] _aliases = new[] { "l" };
+        internal static readonly string[] _aliases = new[] { "r" };
 
         private readonly string commandName;
 
-        private static Translation translation;
+        private readonly Translation translation;
 
         public string Command { get; }
         public string Description { get; }
         public string[] Aliases { get; }
-        public string[] Usage { get; }
         public bool SanitizeResponse { get; }
         private static Config Config => Plugin.Singleton.pluginConfig;
     }

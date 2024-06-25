@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
-using MEC;
+using GhostSpectator.Extensions;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
@@ -13,72 +13,92 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 {
     public class Accept : ICommand
     {
-        public Accept (string command, string description, string[] aliases)
+        public Accept(string command, string description, string[] aliases)
         {
+            translation = Translation.AccessTranslation();
+            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
+            Description = description;
             Aliases = aliases;
-            Log.Debug("Loaded Accept subcommand.", CommandTranslation.commandTranslation.Debug, "GhostSpectator");
+            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            CommandTranslation translation = CommandTranslation.commandTranslation;
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
+                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
                 return false;
             }
             if (sender == null)
             {
                 response = translation.SenderNull;
+                Log.Debug("Command sender is null.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.duel"))
             {
                 response = translation.NoPerms;
+                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
                 return false;
             }
-            if (Warhead.IsDetonated && Plugin.Singleton.PluginConfig.DespawnOnDetonation && !sender.CheckPermission("gs.warhead"))
+            if (Warhead.IsDetonated)
             {
-                response = translation.AfterWarhead;
+                response = translation.WarheadDetonated;
+                Log.Debug($"Player {sender.LogName} can't use this command after warhead detonation.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhostSelf;
+                response = translation.NotGhost;
+                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
-            if (!DuelParent.list.Values.Contains(commandsender))
+            if (!DuelExtensions.DuelRequests.Values.Any(p => p.Item1 == commandsender))
             {
                 response = translation.NoDuelRequests;
+                Log.Debug($"Player {commandsender.Nickname} has no duel requests.", Config.Debug, commandName);
                 return false;
             }
-            List<Player> playerList = (from p in DuelParent.list where p.Value == commandsender select p.Key).ToList();
-            Player requester = arguments.IsEmpty() ? playerList.First() : playerList.FirstOrDefault(p => p.Nickname == arguments.At(0));
-            foreach (Player player in playerList)
+            List<Player> allRequesters = (from p in DuelExtensions.DuelRequests where p.Value.Item1 == commandsender select p.Key).ToList();
+            Player requester = null;
+            if (arguments.IsEmpty())
             {
-                if (player != requester)
-                {
-                    player.ReceiveHint(translation.DuelRequestExpired.Replace("%player%", commandsender.Nickname), 5);
-                }
-                DuelParent.list.Remove(player);
+                requester = allRequesters.First();
             }
-            Timing.RunCoroutine(DuelParent.PrepareDuel(requester, commandsender));
-            response = translation.DuelAcceptSuccess.Replace("%player", requester.Nickname);
-            Log.Debug($"Player {commandsender.Nickname} has accepted a duel request from {requester.Nickname}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.Accept");
+            else
+            {
+                requester = allRequesters.FirstOrDefault(p => string.Equals(p.Nickname, string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase));
+                requester ??= allRequesters.FirstOrDefault(p => p.Nickname.IndexOf(string.Join(" ", arguments), StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+            if (requester == null)
+            {
+                response = translation.NoPlayers;
+                Log.Debug("Provided player(s) doesn't exist.", Config.Debug, commandName);
+                return false;
+            }
+            commandsender.AcceptDuel(requester, allRequesters);
+            response = translation.AcceptSuccess.Replace("%playernick%", requester.Nickname);
+            Log.Debug($"Player {commandsender.Nickname} has accepted a duel request from {requester.Nickname}.", Config.Debug, commandName);
             return true;
         }
 
         internal const string _command = "accept";
 
-        internal const string _description = "Accept duel offer from player. If you have multiple offers, first one will be accepted, unless you provide a player nickname.";
+        internal const string _description = "Accept duel offer from a player. If you have multiple offers, first one will be accepted, unless you provide a player nickname.";
 
-        internal static readonly string[] _aliases = new string[] { "a" };
+        internal static readonly string[] _aliases = new[] { "a" };
 
+        private readonly string commandName;
+
+        private readonly Translation translation;
+       
         public string Command { get; }
-        public string[] Aliases { get; }
         public string Description { get; }
+        public string[] Aliases { get; }
+        public bool SanitizeResponse { get; }
+        private static Config Config => Plugin.Singleton.pluginConfig;
     }
 }
