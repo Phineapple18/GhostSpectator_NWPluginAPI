@@ -1,8 +1,6 @@
 # GhostSpectator_NWAPI
 Plugin for SCP-SL game, that allows players to become Ghosts: Tutorials, that are undetectable to alive players and have no influence on a course of the game. Depending on the config, Ghosts can perform various activities, such as teleport to alive players, practice on shooting targets or challenge another Ghost to a duel.
 
-![Logo](https://github.com/Phineapple18/GhostSpectator_NWPluginAPI/blob/main/Images/GS_Thumbnail.png)
-
 ## Features
 - Ghosts can pass through most of the doors.
 - Ghosts can teleport to a random alive player by dropping an item of type declared in the config (a Lantern by default), if different than None. There is an option to exclude certain roles, that Ghosts won't be able to teleport to.
