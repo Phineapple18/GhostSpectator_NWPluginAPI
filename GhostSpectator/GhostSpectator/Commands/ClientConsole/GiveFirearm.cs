@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using GhostSpectator.Extensions;
 using InventorySystem;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Firearms.Attachments;
@@ -16,72 +17,76 @@ namespace GhostSpectator.Commands.ClientConsole
     [CommandHandler(typeof(ClientCommandHandler))]
     public class GiveFirearm : ICommand, IUsageProvider
     {
-        public GiveFirearm ()
+        public GiveFirearm()
         {
-            translation = CommandTranslation.commandTranslation;
+            translation = Translation.AccessTranslation();
+            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
             Command = !string.IsNullOrWhiteSpace(translation.GivefirearmCommand) ? translation.GivefirearmCommand : _command;
-            Description = !string.IsNullOrWhiteSpace(translation.GivefirearmDescription) ? translation.GivefirearmDescription : _description;
+            Description = translation.GivefirearmDescription;
             Aliases = translation.GivefirearmAliases;
-            Log.Debug("Loaded GiveFirearm command.", translation.Debug, "GhostSpectator");
+            Usage = new[] { "%item%/list" };
+            Log.Debug($"Registered {this.Command} command.", translation.Debug, Translation.pluginName);
         }
-
-        public string[] Usage { get; } = new string[]
-        {
-            "%item%/list"
-        };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
+                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
                 return false;
             }
             if (sender == null)
             {
                 response = translation.SenderNull;
+                Log.Debug("Command sender is null.", Config.Debug, commandName);
                 return false;
             }
             if (!sender.CheckPermission("gs.firearm"))
             {
                 response = translation.NoPerms;
+                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
             if (!commandsender.IsGhost())
             {
-                response = translation.NotGhostSelf;
+                response = translation.NotGhost;
+                Log.Debug($"Player {commandsender.Nickname} is not a Ghost.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{translation.Usage}: {this.DisplayCommandUsage()}.";
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {commandsender.Nickname} didn't provide arguments for command.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.At(0).ToLower() == "list")
             {
-                response = $"{translation.FirearmList}:" + string.Join("\n- ", from g in InventoryItemLoader.AvailableItems where g.Value.Category == ItemCategory.Firearm select g.Key);
+                response = $"{translation.GivefirearmList}:" + string.Join("\n- ", from g in InventoryItemLoader.AvailableItems where g.Value.Category == ItemCategory.Firearm select g.Key);
                 return true;
             }
             if (!Enum.TryParse(arguments.At(0), out ItemType itemType))
             {
-                response = translation.NotItemtype;
+                response = translation.ItemtypeOnly;
+                Log.Debug($"Player {commandsender.Nickname} didn't provide an item type.", Config.Debug, commandName);
                 return false;
             }
-            bool isFirearm = InventoryItemLoader.AvailableItems.Any(i => i.Key == itemType && i.Value.Category == ItemCategory.Firearm);    
-            if (!isFirearm)
+            if (!InventoryItemLoader.AvailableItems.Any(i => i.Key == itemType && i.Value.Category == ItemCategory.Firearm))
             {
-                response = translation.OnlyFirearm;
+                response = translation.FirearmOnly;
+                Log.Debug($"Player {commandsender.Nickname} didn't provide an item type, that is a firearm.", Config.Debug, commandName);
                 return false;
-            }        
+            }
             Firearm firearm = commandsender.AddItem(itemType) as Firearm;
             if (AttachmentsServerHandler.PlayerPreferences.TryGetValue(commandsender.ReferenceHub, out Dictionary<ItemType, uint> dictionary) && dictionary.TryGetValue(itemType, out uint code))
             {
                 firearm.ApplyAttachmentsCode(code, true);
+                Log.Debug($"Player {commandsender.Nickname} attachment preferences have been applied to the firearm.", Config.Debug, commandName);
             }
-            firearm.Status = new FirearmStatus(firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, firearm.GetCurrentAttachmentsCode());
-            response = translation.GivefirearmSuccess.Replace("%itemType%", itemType.ToString());
-            Log.Debug($"Player {commandsender.Nickname} gave himself a firearm {itemType}.", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.GiveFirearm");
+            firearm.Status = new(firearm.AmmoManagerModule.MaxAmmo, FirearmStatusFlags.MagazineInserted, firearm.GetCurrentAttachmentsCode());
+            response = translation.GivefirearmSuccess.Replace("%itemtype%", itemType.ToString());
+            Log.Debug($"Player {commandsender.Nickname} has given themselves a {itemType}.", Config.Debug, commandName);
             return true;
         }
 
@@ -89,12 +94,17 @@ namespace GhostSpectator.Commands.ClientConsole
 
         internal const string _description = "Give yourself a firearm or print a list of available firearms.";
 
-        internal static readonly string[] _aliases = new string[] { "firearm", "givegun", "gun" };
+        internal static readonly string[] _aliases = new[] { "firearm", "givegun", "gun" };
 
-        private readonly CommandTranslation translation;
+        private readonly string commandName;
+
+        private readonly Translation translation;
 
         public string Command { get; }
-        public string[] Aliases { get; }
         public string Description { get; }
+        public string[] Aliases { get; }
+        public string[] Usage { get; }
+        public bool SanitizeResponse { get; }
+        private static Config Config => Plugin.Singleton.pluginConfig;
     }
 }
