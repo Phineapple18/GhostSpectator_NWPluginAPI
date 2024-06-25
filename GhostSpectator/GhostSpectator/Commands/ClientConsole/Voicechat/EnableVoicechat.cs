@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using GhostSpectator.Extensions;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
@@ -15,79 +16,85 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
     {
         public EnableVoicechat()
         {
-            translation = CommandTranslation.commandTranslation;
-            Command = !string.IsNullOrWhiteSpace(translation.EnableVoicechatCommand) ? translation.EnableVoicechatCommand : _command;
-            Description = !string.IsNullOrWhiteSpace(translation.EnableVoicechatDescription) ? translation.EnableVoicechatDescription : _description;
-            Aliases = translation.EnableVoicechatAliases;
-            Log.Debug("Loaded EnableVoicechat command.", translation.Debug, "GhostSpectator");
+            translation = Translation.AccessTranslation();
+            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
+            Command = !string.IsNullOrWhiteSpace(translation.EnablevoicechatCommand) ? translation.EnablevoicechatCommand : _command;
+            Description = translation.EnablevoicechatDescription;
+            Aliases = translation.EnablevoicechatAliases;
+            Usage = new[] { $"{string.Join("/", OtherExtensions.voiceChats.Keys.ToArray())}/all" };
+            Log.Debug($"Registered {this.Command} command.", translation.Debug, Translation.pluginName);
         }
-
-        public string[] Usage { get; } = new string[]
-        {
-            "scp/dead/ghost/all"
-        };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
             if (Plugin.Singleton == null)
             {
                 response = translation.NotEnabled;
+                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
                 return false;
             }
             if (sender == null)
             {
                 response = translation.SenderNull;
-                return false;
-            }
-            if (!(sender.CheckPermission("gs.listen.scp") || sender.CheckPermission("gs.listen.dead") || sender.CheckPermission("gs.listen.ghost")))
-            {
-                response = translation.NoPerms;
+                Log.Debug("Command sender is null.", Config.Debug, commandName);
                 return false;
             }
             if (arguments.IsEmpty())
             {
-                response = $"{translation.Usage}: {this.DisplayCommandUsage()}.";
+                response = $"{Description} {translation.Usage}: {this.DisplayCommandUsage()}";
+                Log.Debug($"Player {sender.LogName} didn't provide arguments for command.", Config.Debug, commandName);
                 return false;
             }
-            if (!arguments.Any(a => availableVoicechats.Keys.Contains(a.ToLower()) || a.ToLower() == "all"))
+            if (!arguments.Any(a => OtherExtensions.voiceChats.Keys.Contains(a.ToLower()) || a.ToLower() == "all"))
             {
                 response = translation.WrongArgument;
+                Log.Debug($"Player {sender.LogName} provided nonexistent argument: {arguments.ElementAt(0)}.", Config.Debug, commandName);
                 return false;
             }
             Player commandsender = Player.Get(sender);
-            List<string> voicechats = arguments.Any(a => a.ToLower() == "all") ? availableVoicechats.Keys.ToList() : arguments.ToList();
-            StringBuilder result = new ($"{translation.EnableVoicechatSuccess}:");
-            bool success = false;
-            foreach (string chat in voicechats)
+            IEnumerable<string> chats = arguments.Any(a => a.ToLower() == "all") ? OtherExtensions.voiceChats.Keys : arguments.Intersect(OtherExtensions.voiceChats.Keys);
+            Dictionary<string, List<string>> results = new() { { "success", new() }, { "noperm", new() }, { "alreadyenabled", new() } };
+            bool result = false;
+            foreach (string chat in chats)
             {
-                if (availableVoicechats.Keys.Contains(chat) && commandsender.CheckPermission($"gs.listen.{chat}") && commandsender.TemporaryData.Add(availableVoicechats[chat].Key, "1"))
+                if (!commandsender.CheckPermission($"gs.listen.{chat}"))
                 {
-                    result.Append($" {availableVoicechats[chat].Value},");
-                    success = true;
+                    results["noperm"].Add(chat);
+                    Log.Debug($"Player {commandsender.Nickname} doesn't have permission to listen to {OtherExtensions.voiceChats[chat].Value}.", Config.Debug, commandName);
+                    continue;
                 }
+                if (commandsender.TemporaryData.Add(OtherExtensions.voiceChats[chat].Key, "1"))
+                {
+                    results["success"].Add(chat);
+                    result = true;
+                    Log.Debug($"Player {commandsender.Nickname} has enabled listening to {OtherExtensions.voiceChats[chat].Value}.", Config.Debug, commandName);
+                    continue;
+                }
+                results["alreadyenabled"].Add(chat);
+                Log.Debug($"Player {commandsender.Nickname} has already enabled listening to {OtherExtensions.voiceChats[chat].Value}.", Config.Debug, commandName);
             }
-            response = success ? result.Replace(',', '.', result.Length - 1, 1).ToString() : translation.EnableVoicechatFail;
-            Log.Debug($"Player {commandsender.Nickname} {(success ? "" : "un")}successfully enabled themselves voicechannel(s).", Plugin.Singleton.PluginConfig.Debug, $"{Plugin.Singleton.pluginHandler.PluginName}.EnableVoicechannel");
-            return success;
+            response = result ? $"{translation.EnableVoicechatSuccess}: {string.Join(", ", results["success"])}."
+                     : results["alreadyenabled"].Count > 0 ? $"{translation.EnablevoicechatFail}: {string.Join(", ", results["alreadyenabled"])}."
+                     : $"{translation.EnablevoicechatFailNoperm}: {string.Join(", ", results["noperm"])}.";
+            Log.Debug($"Player {commandsender.Nickname} {(result ? "" : "un")}successfully enabled themselves {(result ? results["success"].Count : results["noperm"].Count + results["alreadyenabled"].Count)} voicechat(s).", Config.Debug, commandName);
+            return result;
         }
-
-        internal static readonly Dictionary<string, KeyValuePair<string, string>> availableVoicechats = new()
-        {
-            { "scp", new ("VcScpChat", "SCPs") },
-            { "dead", new ("VcSpectator", "Spectators") },
-            { "ghost", new ("ListenGhosts", "Ghosts") }
-        };
 
         internal const string _command = "enablevoicechat";
 
-        internal const string _description = "Enable listening to selected voicechat(s) as a Ghost.";
+        internal const string _description = "Enable listening to selected voicechat(s) as Ghost.";
 
-        internal static readonly string[] _aliases = new string[] { "evc" };
+        internal static readonly string[] _aliases = new[] { "evc" };
 
-        private readonly CommandTranslation translation;
+        private readonly string commandName;
+
+        private readonly Translation translation;
 
         public string Command { get; }
-        public string[] Aliases { get; }
         public string Description { get; }
+        public string[] Aliases { get; }
+        public string[] Usage { get; }
+        public bool SanitizeResponse { get; }
+        private static Config Config => Plugin.Singleton.pluginConfig;
     }
 }
