@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
 
+using CustomPlayerEffects;
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using NorthwoodLib.Pools;
-using PlayerRoles.FirstPersonControl.NetworkMessages;
-using PlayerRoles.Visibility;
-using PlayerRoles.Spectating;
 using PlayerRoles;
+using PlayerRoles.FirstPersonControl.NetworkMessages;
+using PlayerRoles.Spectating;
+using PlayerRoles.Visibility;
+
 
 namespace GhostSpectator.Patches
 {
@@ -28,10 +31,10 @@ namespace GhostSpectator.Patches
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
-                new (OpCodes.Ldarg_0),
-                new (OpCodes.Ldloc_S, 5),
-                new (OpCodes.Ldloca_S, 7),
-                new (OpCodes.Call, AccessTools.Method(typeof(VisibilityPatch), nameof(IsGhostInvisible), new[] { typeof(ReferenceHub), typeof(ReferenceHub), typeof(bool).MakeByRefType() }))
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldloc_S, 5),
+                new(OpCodes.Ldloca_S, 7),
+                new(OpCodes.Call, AccessTools.Method(typeof(VisibilityPatch), nameof(IsGhostInvisible), new[] { typeof(ReferenceHub), typeof(ReferenceHub), typeof(bool).MakeByRefType() }))
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
@@ -46,6 +49,11 @@ namespace GhostSpectator.Patches
         {
             if (observed.IsGhost())
             {
+                if (observed.playerEffectsController.TryGetEffect<Invisible>(out Invisible invisible) && invisible.Intensity > 0)
+                {
+                    isInvisible = true;
+                    return;
+                }
                 if (observer.IsGhost() || observer.GetRoleId() == RoleTypeId.Overwatch)
                 {
                     isInvisible = false;
@@ -58,11 +66,11 @@ namespace GhostSpectator.Patches
                 }
                 if (observer.GetRoleId() == RoleTypeId.Filmmaker)
                 {
-                    isInvisible = !Plugin.Singleton.PluginConfig.FilmmakerSeeGhosts;
+                    isInvisible = !Plugin.Singleton.pluginConfig.FilmmakerSeeGhosts;
                     return;
                 }
                 ReferenceHub spectated = ReferenceHub.AllHubs.FirstOrDefault(p => p.IsSpectatedBy(observer));
-                isInvisible = !(spectated.IsGhost() || Plugin.Singleton.PluginConfig.AlwaysSeeGhosts);
+                isInvisible = !(spectated.IsGhost() || Plugin.Singleton.pluginConfig.AlwaysSeeGhosts);
             }
         }
     }

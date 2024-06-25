@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using System.Reflection.Emit;
 
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using NorthwoodLib.Pools;
 using PlayerStatsSystem;
@@ -21,16 +22,16 @@ namespace GhostSpectator.Patches
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
-            Label skipLabel = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_1).ElementAt(4).labels.Add(skipLabel);
+            Label skip = generator.DefineLabel();
+            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldarg_1).ElementAt(4).labels.Add(skip);
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.Method(typeof(StandardDamageHandler), "ProcessDamage"));
 
             newInstructions.InsertRange(index, new List<CodeInstruction>
             {
-                new (OpCodes.Call, AccessTools.Method(typeof(ApplyDamagePatch), nameof(SkipProcessing), new[] { typeof(StandardDamageHandler), typeof(ReferenceHub) })),
-                new (OpCodes.Brtrue, skipLabel),
-                new (OpCodes.Ldarg_0),
-                new (OpCodes.Ldarg_1)
+                new(OpCodes.Call, AccessTools.Method(typeof(ApplyDamagePatch), nameof(SkipProcessing), new[] { typeof(StandardDamageHandler), typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue, skip),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Ldarg_1)
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
@@ -41,19 +42,19 @@ namespace GhostSpectator.Patches
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
 
-        private static bool SkipProcessing(StandardDamageHandler sdh, ReferenceHub ply)
+        private static bool SkipProcessing(StandardDamageHandler standardHandler, ReferenceHub hub)
         {
-            if (sdh is not AttackerDamageHandler adh || Server.FriendlyFire)
+            if (standardHandler is not AttackerDamageHandler attackHandler || Server.FriendlyFire)
             {
                 return false;
             }
-            if (!(adh.Attacker.Hub.IsGhost() && ply.IsGhost()))
+            if (!(attackHandler.Attacker.Hub.IsGhost() && hub.IsGhost()))
             {
                 return false;
             }
-            Player attacker = Player.Get(adh.Attacker.Hub);
-            Player target = Player.Get(ply);
-            return attacker.GetGhostComponent().duelPartner == target && target.GetGhostComponent().duelPartner == attacker;
+            Player attacker = Player.Get(attackHandler.Attacker.Hub);
+            Player target = Player.Get(hub);
+            return attacker.GetGhostComponent().DuelPartner == target && target.GetGhostComponent().DuelPartner == attacker;
         }
     }
 }

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Reflection.Emit;
+
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using Mirror;
 using NorthwoodLib.Pools;
@@ -44,16 +46,16 @@ namespace GhostSpectator.Patches
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
-            Label checkNext = generator.DefineLabel();
-            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloc_0).ElementAt(0).labels.Add(checkNext);
+            Label nextCondition = generator.DefineLabel();
+            newInstructions.FindAll((CodeInstruction i) => i.opcode == OpCodes.Ldloc_0).ElementAt(0).labels.Add(nextCondition);
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Isinst);
             int offset = 1;
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
-                new (OpCodes.Brtrue_S, checkNext),
-                new (OpCodes.Ldloc_S, 4),
-                new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new Type[] {typeof(ReferenceHub)})),
+                new(OpCodes.Brtrue_S, nextCondition),
+                new(OpCodes.Ldloc_S, 4),
+                new(OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new[] { typeof(ReferenceHub) })),
             });
 
             for (int i = 0; i < newInstructions.Count; i++)

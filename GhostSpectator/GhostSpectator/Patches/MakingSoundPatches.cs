@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
 
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using InventorySystem.Items.Firearms;
 using NorthwoodLib.Pools;
-using PlayerRoles.FirstPersonControl.Thirdperson;
 using PlayerRoles;
+using PlayerRoles.FirstPersonControl.Thirdperson;
 
 namespace GhostSpectator.Patches
 {
@@ -38,10 +39,10 @@ namespace GhostSpectator.Patches
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
-                new (OpCodes.Ldloc_1),
-                new (OpCodes.Ldloc_S, 5),
-                new (OpCodes.Call, AccessTools.Method(typeof(FirearmSoundPatch), nameof(OverrideGunShot), new [] {typeof(ReferenceHub), typeof(ReferenceHub)})),
-                new (OpCodes.Brtrue_S, moveNext)
+                new(OpCodes.Ldloc_1),
+                new(OpCodes.Ldloc_S, 5),
+                new(OpCodes.Call, AccessTools.Method(typeof(FirearmSoundPatch), nameof(OverrideGunShot), new[] { typeof(ReferenceHub), typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue_S, moveNext)
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
@@ -52,9 +53,9 @@ namespace GhostSpectator.Patches
             ListPool<CodeInstruction>.Shared.Return(newInstructions);
         }
 
-        private static bool OverrideGunShot(ReferenceHub shooter, ReferenceHub player)
+        private static bool OverrideGunShot(ReferenceHub shooter, ReferenceHub hub)
         {
-            return shooter.IsGhost() && player.GetRoleId() == RoleTypeId.Scp939;
+            return shooter.IsGhost() && hub.GetRoleId() == RoleTypeId.Scp939;
         }
     }
 }

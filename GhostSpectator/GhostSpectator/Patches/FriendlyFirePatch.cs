@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using PlayerStatsSystem;
 
@@ -14,8 +15,8 @@ namespace GhostSpectator.Patches
     {
         internal static void Postfix(ReferenceHub damagedPlayer, DamageHandlerBase handler, ref bool __result)
         {
-            AttackerDamageHandler attackerDamageHandler = handler as AttackerDamageHandler;
-            if (__result == true && attackerDamageHandler.Attacker.Hub.IsGhost() && damagedPlayer.IsGhost())
+            AttackerDamageHandler attackHandler = handler as AttackerDamageHandler;
+            if (__result && attackHandler.Attacker.Hub.IsGhost() && damagedPlayer.IsGhost())
             {
                 __result = false;
             }

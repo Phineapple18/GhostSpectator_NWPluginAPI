@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
 
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using InventorySystem.Items;
 using NorthwoodLib.Pools;
@@ -31,18 +32,18 @@ namespace GhostSpectator.Patches
         {
             List<CodeInstruction> newInstructions = ListPool<CodeInstruction>.Shared.Rent(instructions);
 
-            Label returnLabel = generator.DefineLabel();
+            Label ret = generator.DefineLabel();
             int index = newInstructions.FindIndex((CodeInstruction i) => i.opcode == OpCodes.Callvirt && (MethodInfo)i.operand == AccessTools.PropertyGetter(typeof(ItemBase), "Owner"));
 
             newInstructions.InsertRange(index, new List<CodeInstruction>
             {
-                new (OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), "Owner")),
-                new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new Type[] {typeof(ReferenceHub)})),
-                new (OpCodes.Brtrue_S, returnLabel),
-                new (OpCodes.Ldarg_1)
+                new(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(ItemBase), nameof(ItemBase.Owner))),
+                new(OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new[] { typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue_S, ret),
+                new(OpCodes.Ldarg_1)
             });
 
-            newInstructions[newInstructions.Count - 1].WithLabels(returnLabel);
+            newInstructions[newInstructions.Count - 1].WithLabels(ret);
             for (int i = 0; i < newInstructions.Count; i++)
             {
                 yield return newInstructions[i];
@@ -66,9 +67,9 @@ namespace GhostSpectator.Patches
 
             newInstructions.InsertRange(index + offset, new List<CodeInstruction>
             {
-                new (OpCodes.Ldloc_1),
-                new (OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new Type[] {typeof(ReferenceHub)})),
-                new (OpCodes.Brtrue, moveNext)
+                new(OpCodes.Ldloc_1),
+                new(OpCodes.Call, AccessTools.Method(typeof(GhostExtensions), nameof(GhostExtensions.IsGhost), new[] { typeof(ReferenceHub) })),
+                new(OpCodes.Brtrue, moveNext)
             });
 
             for (int i = 0; i < newInstructions.Count; i++)
