@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.IO;
 
+using GhostSpectator.Extensions;
 using HarmonyLib;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
@@ -19,99 +20,100 @@ using UnityEngine;
 namespace GhostSpectator
 {
     public class Plugin
-    {  
+    {
         [PluginPriority(LoadPriority.Medium)]
-		[PluginEntryPoint("GhostSpectator", "1.2.1", null, "Phineapple18")]
+		[PluginEntryPoint(Translation.pluginName, "1.3.0", null, "Phineapple18")]
 		public void OnLoad()
 		{
-            if (!PluginConfig.IsEnabled)
+            if (!pluginConfig.IsEnabled)
 			{
-                Log.Warning("Plugin GhostSpectator is disabled.", "GhostSpectator");
+                Log.Warning($"Plugin {Translation.pluginName} is disabled.", Translation.pluginName);
                 return;
 			}
             if (!AssemblyLoader.InstalledPlugins.Any(p => p.PluginName == "NWApiPermissionSystem"))
             {
-                throw new DllNotFoundException("The NWApiPermissionSystem plugin is required for GhostSpectator to work.");
+                throw new DllNotFoundException($"The NWApiPermissionSystem plugin is required for {Translation.pluginName} plugin to work.");
             }
             if (File.Exists(Path.Combine(Paths.GlobalPlugins.Plugins, "0Harmony.dll")) || File.Exists(Path.Combine(Paths.LocalPlugins.Plugins, "0Harmony.dll")))
             {
-                Log.Warning("0Harmony should be in the dependencies folder.", pluginHandler.PluginName);
+                Log.Warning("The Harmony dependency should be placed in the dependencies folder.", Translation.pluginName);
             }
             Singleton = this;
             pluginHandler = PluginHandler.Get(this);
             EventManager.RegisterEvents<EventHandlers>(this);
             this.GetSpawnPoints(CultureInfo.InvariantCulture);
-            this.GetShootingAreas(CultureInfo.InvariantCulture);
-            this.harmony = new Harmony($"ghostspectator.{DateTime.UtcNow.Ticks}");
+            this.CreateShootingRanges(CultureInfo.InvariantCulture);
+            this.harmony = new($"{pluginHandler.PluginName.ToLower()}.{DateTime.UtcNow.Ticks}");
             this.harmony.PatchAll();
             Log.Info($"Loaded plugin {pluginHandler.PluginName} by {pluginHandler.PluginAuthor}.", pluginHandler.PluginName);
         }
 
-        public void GetSpawnPoints(CultureInfo dot)
+        private void GetSpawnPoints(CultureInfo format)
         {
-            foreach (string position in PluginConfig.SpawnPositions)
+            foreach (string data in pluginConfig.SpawnPositions)
             {
                 try
                 {
-                    string[] newPosition = position.Split(',');
-                    spawnPositions.Add(new (float.Parse(newPosition[0], dot), float.Parse(newPosition[1], dot), float.Parse(newPosition[2], dot)));
+                    string[] position = data.Split(',');
+                    OtherExtensions.SpawnPositions.Add(new(float.Parse(position[0], format), float.Parse(position[1], format), float.Parse(position[2], format)));
+                    Log.Debug($"Loaded following ghost spawn position: {data}.", pluginConfig.Debug, pluginHandler.PluginName);
                 }
                 catch (Exception)
                 {
-                    Log.Debug($"The spawn point {position} is not a valid position.", PluginConfig.Debug, pluginHandler.PluginName);
+                    Log.Debug($"The provided position {data} is in wrong format.", pluginConfig.Debug, pluginHandler.PluginName);
                     continue;
                 }
             }
-            if (spawnPositions.Count == 0)
+            if (OtherExtensions.SpawnPositions.Count == 0)
             {
-                spawnPositions.Add(new (9f, 1002f, 1f));
-                Log.Error("All spawn positions were in wrong format, default spawn point will be used instead.", pluginHandler.PluginName);
+                OtherExtensions.SpawnPositions.Add(new(9f, 1002f, 1f));
+                Log.Error("All spawn positions are in wrong format, default spawn position will be used instead.", pluginHandler.PluginName);
                 return;
             }
-            Log.Debug($"Successfully loaded {spawnPositions.Count} Ghost spawn positions.", PluginConfig.Debug, pluginHandler.PluginName);
+            Log.Debug($"Successfully loaded {OtherExtensions.SpawnPositions.Count} spawn positions for Ghosts.", pluginConfig.Debug, pluginHandler.PluginName);
         }
 
-        public void GetShootingAreas(CultureInfo dot)
+        private void CreateShootingRanges(CultureInfo format)
         {
-            foreach (var area in PluginConfig.ShootingAreas)
+            foreach (var kvp in pluginConfig.ShootingRanges)
             {
-                string[] string1 = area.Key.Split(',');
-                string[] string2 = area.Value.Split(',');
+                string[] string1 = kvp.Key.Split(',');
+                string[] string2 = kvp.Value.Split(',');
 
                 Vector3 vector1;
                 Vector3 vector2;
                 try
                 {
-                    vector1 = new (float.Parse(string1[0], dot), float.Parse(string1[1], dot), float.Parse(string1[2], dot));
-                    vector2 = new (float.Parse(string2[0], dot), float.Parse(string2[1], dot), float.Parse(string2[2], dot));
+                    vector1 = new(float.Parse(string1[0], format), float.Parse(string1[1], format), float.Parse(string1[2], format));
+                    vector2 = new(float.Parse(string2[0], format), float.Parse(string2[1], format), float.Parse(string2[2], format));
                 }
                 catch (Exception)
                 {
-                    Log.Debug($"At least one of the shooting area coordinates is in invalid format ({area.Key}) ({area.Value}).", PluginConfig.Debug, pluginHandler.PluginName);
+                    Log.Debug($"The provided coordinates ({kvp.Key}) ({kvp.Value}) are in wrong format.", pluginConfig.Debug, pluginHandler.PluginName);
                     continue;
                 }
-                shootingAreas.Add(new Bounds((vector1 + vector2) * 0.5f, (vector1 - vector2).Abs()));
+                Bounds bounds = new((vector1 + vector2) / 2, (vector1 - vector2).Abs());
+                OtherExtensions.ShootingRanges.Add(bounds);
+                Log.Debug($"Created following shooting range bounds: {bounds}.", pluginConfig.Debug, pluginHandler.PluginName);
             }
-            if (shootingAreas.Count == 0)
+            if (OtherExtensions.ShootingRanges.Count == 0)
             {
-                shootingAreas.Add(new (new Vector3(0f, 995.5f, -8f), new Vector3(20f, 1f, 8f)));
-                Log.Error("All shooting areas were in wrong format, default shooting area will be used instead.", pluginHandler.PluginName);
+                OtherExtensions.ShootingRanges.Add(new(new(0f, 995.5f, -8f), new(20f, 1f, 8f)));
+                Log.Error("All coordinates are in wrong format, default shooting range bounds will be used instead.", pluginHandler.PluginName);
                 return;
             }
-            Log.Debug($"Successfully created {shootingAreas.Count} shooting areas.", PluginConfig.Debug, pluginHandler.PluginName);
+            Log.Debug($"Successfully created {OtherExtensions.ShootingRanges.Count} shooting ranges bounds.", pluginConfig.Debug, pluginHandler.PluginName);
         }
 
-        public static Plugin Singleton { get; private set; }
+        private Harmony harmony;
 
         public PluginHandler pluginHandler;
 
-        [PluginConfig] public Config PluginConfig;
+        [PluginConfig] public Config pluginConfig;
 
-        internal static List<Bounds> shootingAreas = new ();
-
-        internal static List<Vector3> spawnPositions = new();
-
-        private Harmony harmony;
+        [PluginConfig(Translation.translationFileName)] public Translation pluginTranslation;
+       
+        public static Plugin Singleton { get; private set; }
     }
 }
 

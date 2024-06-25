@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 
 using AdminToys;
 using CustomPlayerEffects;
-using GhostSpectator.Commands;
-using GhostSpectator.Commands.ClientConsole.Duel;
+using GhostSpectator.Extensions;
 using InventorySystem.Items;
-using MEC;
-using Mirror;
 using NWAPIPermissionSystem;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
+using PlayerRoles.PlayableScps.Scp049;
 using PluginAPI.Core;
 using UnityEngine;
-using Utils.Networking;
 
 namespace GhostSpectator
 {
@@ -26,88 +23,107 @@ namespace GhostSpectator
         public void Awake()
         {
             player = Player.Get(ReferenceHub.GetHub(base.transform.root.gameObject));
-            Log.Debug($"Created a GhostComponent for player {player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            Log.Debug($"Created a {this.GetType().Name} for player {player.Nickname}.", config.Debug, pluginName);
         }
 
         public void OnEnable()
         {
-            Config config = Plugin.Singleton.PluginConfig;
-
+            int reviveNum = Scp049ResurrectAbility.GetResurrectionsNumber(player.ReferenceHub);
             player.ReferenceHub.roleManager.ServerSetRole(this.RoleType, RoleChangeReason.RemoteAdmin, RoleSpawnFlags.AssignInventory);
+            if (reviveNum > 0)
+            {
+                Scp049ResurrectAbility.RegisterPlayerResurrection(player.ReferenceHub, reviveNum);
+                Log.Debug($"Re-registered resurrection number ({reviveNum}) for player {player.Nickname}.", config.Debug, pluginName);
+            }
             player.PlayerInfo.IsRoleHidden = true;
             player.PlayerInfo.IsNicknameHidden = true;
-
-            player.Position = Plugin.spawnPositions.ElementAt(new System.Random().Next(Plugin.spawnPositions.Count));
-            player.Health = this.Health;        
-            player.EffectsManager.EnableEffect<Scp207>();
-            Timing.CallDelayed(0.1f, () => player.EffectsManager.EnableEffect<Ghostly>());
+            player.Health = config.GhostHealth;
+            player.ReferenceHub.interCoordinator.AddBlocker(this);
+            player.Position = OtherExtensions.SpawnPositions.ElementAt(new System.Random().Next(OtherExtensions.SpawnPositions.Count));
             if (player.CheckPermission("gs.noclip"))
             {
                 FpcNoclip.PermitPlayer(player.ReferenceHub);
+                Log.Debug($"Granted noclip permit for player {player.Nickname}.", config.Debug, pluginName);
             }
-
-            player.ReferenceHub.interCoordinator.AddBlocker(this);
-            player.AddItem(config.TeleportItem);
-            if (!string.IsNullOrWhiteSpace(config.SpawnMessage))
+            foreach (var permission in OtherExtensions.voiceChats)
             {
-                string message = config.SpawnMessage.Replace("%colour%", config.GhostColor).Replace("%TeleportItem%", config.TeleportItem.ToString());
-                player.SendBroadcast(message, config.SpawnMessageDuration, Broadcast.BroadcastFlags.Normal, true);
+                if (player.CheckPermission($"gs.autolisten.{permission.Key}"))
+                {
+                    player.TemporaryData.Add(permission.Value.Key, "1");
+                    Log.Debug($"Enabled autolistening to {permission.Value.Value} for player {player.Nickname}.", config.Debug, pluginName);
+                }
+            }          
+            if (config.TeleportItem != ItemType.None)
+            {
+                ghostItem = player.AddItem(config.TeleportItem);
+                OtherExtensions.GhostItemList.Add(player.GetGhostComponent().ghostItem);
+                Log.Debug($"Ghost item {config.TeleportItem} has been given to player {player.Nickname}.", config.Debug, pluginName);
             }
-            player.TemporaryData.StoredData["IsGhostSpectator"] = "spawned";
-            Log.Debug($"Enabled a GhostComponent for player {player.Nickname}.", config.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            if (!string.IsNullOrWhiteSpace(translation.SpawnMessage))
+            {
+                string message = translation.SpawnMessage.Replace("%colour%", config.GhostColor).Replace("%teleportitem%", config.TeleportItem.ToString());
+                player.SendBroadcast(message, config.SpawnmessageDuration, Broadcast.BroadcastFlags.Normal, true);
+            }
+            player.TemporaryData.StoredData[GhostExtensions.dataName] = "spawned";
+            Log.Debug($"Enabled {this.GetType().Name} for player {player.Nickname}.", config.Debug, pluginName);
         }
 
         public void Update()
         {
-            player.CustomInfo = $"<color={Plugin.Singleton.PluginConfig.GhostColor}>{player.DisplayNickname.Replace("#855439", "#944710")}\n{Plugin.Singleton.PluginConfig.GhostNickname}</color>";
+            player.CustomInfo = $"<color={config.GhostColor}>{player.DisplayNickname.Replace("#855439", "#944710")}\n{translation.GhostNickname}</color>";
+            player.EffectsManager.EnableEffect<Scp207>();
+            player.EffectsManager.EnableEffect<Ghostly>();
         }
 
         public void OnDisable()
         {
-            player.TemporaryData.StoredData["IsGhostSpectator"] = "despawning";
+            player.TemporaryData.StoredData[GhostExtensions.dataName] = "despawning";
             player.PlayerInfo.IsRoleHidden = false;
             player.PlayerInfo.IsNicknameHidden = false;
             player.CustomInfo = string.Empty;
-
-            player.ClearInventory();
-            player.EffectsManager.DisableAllEffects();
-            player.IsGodModeEnabled = false;
             player.Health = player.MaxHealth;
+            player.EffectsManager.DisableAllEffects();
+            player.ClearInventory();
             if (player.CheckPermission("gs.noclip"))
             {
                 FpcNoclip.UnpermitPlayer(player.ReferenceHub);
+                Log.Debug($"Revoked noclip permit for player {player.Nickname}.", config.Debug, pluginName);
             }
-
-            if (duelPartner != null)
+            foreach (var permission in OtherExtensions.voiceChats)
             {
-                duelPartner.ReceiveHint(CommandTranslation.commandTranslation.DuelAborted, 5);
-                duelPartner.GetGhostComponent().duelPartner = null;
+                player.TemporaryData.Remove(permission.Key);
+                Log.Debug($"Disabled listening to {permission.Value.Value} for player {player.Nickname}.", config.Debug, pluginName);
             }
-            duelPartner = null;
-            DuelParent.list.Remove(player);
-            foreach (var toy in this.shootingTargets)
+            if (ghostItem != null)
             {
-                if (NetworkUtils.SpawnedNetIds.TryGetValue(toy.Key, out NetworkIdentity networkIdentity) && networkIdentity.TryGetComponent<AdminToyBase>(out AdminToyBase target))
-                {
-                    NetworkServer.Destroy(target.gameObject);
-                }
-                this.shootingTargets.Remove(toy.Key);
+                OtherExtensions.GhostItemList.Remove(player.GetGhostComponent().ghostItem);
+                player.GetGhostComponent().ghostItem = null;
+                Log.Debug($"Destroyed ghost item for player {player.Nickname}.", config.Debug, pluginName);
             }
-            Log.Debug($"Disabled a GhostComponent for player {player.Nickname}.", Plugin.Singleton.PluginConfig.Debug, Plugin.Singleton.pluginHandler.PluginName);
+            DuelExtensions.AbortDuel(player, DuelPartner);
+            DuelExtensions.TryAbortDuelPreparation(player, out _);
+            DuelExtensions.TryRemoveDuelRequest(player, out _, false);
+            foreach (AdminToyBase target in this.ShootingTargets)
+            {
+                OtherExtensions.DestroyShootingTarget(this, target);
+            }
+            Log.Debug($"Disabled {this.GetType().Name} for player {player.Nickname}.", config.Debug, pluginName);
         }
 
-        public BlockedInteraction BlockedInteractions => BlockedInteraction.BeDisarmed | BlockedInteraction.GeneralInteractions | BlockedInteraction.GrabItems;
-
-        public bool CanBeCleared => !base.enabled;
-
-        internal float Health => Plugin.Singleton.PluginConfig.GhostHealth;
-
-        private RoleTypeId RoleType => RoleTypeId.Tutorial;
-
-        internal Player duelPartner;   
-
-        internal Dictionary<uint, AdminToyBase> shootingTargets = new ();
-
         private Player player;
+
+        private ItemBase ghostItem;
+
+        private readonly Config config = Plugin.Singleton.pluginConfig;
+
+        private readonly Translation translation = Plugin.Singleton.pluginTranslation;
+
+        private readonly string pluginName = Plugin.Singleton.pluginHandler.PluginName;
+
+        public BlockedInteraction BlockedInteractions => BlockedInteraction.BeDisarmed | BlockedInteraction.GeneralInteractions | BlockedInteraction.GrabItems;
+        public bool CanBeCleared => !base.enabled;
+        public Player DuelPartner { get; internal set; }
+        private RoleTypeId RoleType { get; } = RoleTypeId.Tutorial;
+        public HashSet<AdminToyBase> ShootingTargets { get; } = new();
     }
 }
