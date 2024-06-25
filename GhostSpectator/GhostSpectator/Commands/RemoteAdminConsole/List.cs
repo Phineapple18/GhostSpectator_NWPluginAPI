@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using CommandSystem;
+using GhostSpectator.Extensions;
 using NWAPIPermissionSystem;
 using PluginAPI.Core;
 
@@ -12,27 +13,37 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 {
 	public class List : ICommand
 	{
-        public List (string command, string description, string[] aliases)
+        public List(string command, string description, string[] aliases)
         {
+            translation = Translation.AccessTranslation();
+            commandName = $"{Translation.pluginName}.{this.GetType().Name}";
             Command = !string.IsNullOrWhiteSpace(command) ? command : _command;
-            Description = !string.IsNullOrWhiteSpace(description) ? description : _description;
+            Description = description;
             Aliases = aliases;
-            Log.Debug("Loaded List subcommand.", CommandTranslation.commandTranslation.Debug, "GhostSpectator");
+            Log.Debug($"Registered {this.Command} subcommand.", translation.Debug, Translation.pluginName);
         }
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
 		{
 			if (Plugin.Singleton == null)
 			{
-				response = CommandTranslation.commandTranslation.NotEnabled;
-				return false;
+                response = translation.NotEnabled;
+                Log.Debug($"Plugin {Translation.pluginName} is not enabled.", translation.Debug, commandName);
+                return false;
 			}
-            if (!sender.CheckPermission("gs.list"))
+            if (sender == null)
             {
-                response = CommandTranslation.commandTranslation.NoPerms;
+                response = translation.SenderNull;
+                Log.Debug("Command sender is null.", Config.Debug, commandName);
                 return false;
             }
-            response = $"{CommandTranslation.commandTranslation.GhostList.Replace("%num%", GhostExtensions.List.Count().ToString())}:\n- {string.Join("\n- ", from player in GhostExtensions.List select player.Nickname)}";
+            if (!sender.CheckPermission("gs.list"))
+            {
+                response = translation.NoPerms;
+                Log.Debug($"Player {sender.LogName} doesn't have required permission to use this command.", Config.Debug, commandName);
+                return false;
+            }
+            response = $"{translation.ListghostSuccess.Replace("%count%", GhostExtensions.GhostPlayerList.Count().ToString())}:\n- {string.Join("\n- ", from player in GhostExtensions.GhostPlayerList select player.Nickname)}";
             return true;
 		}
 
@@ -40,10 +51,16 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 
         internal const string _description = "Print a list of all Ghosts.";
 
-        internal static readonly string[] _aliases = new string[] { "l" };
+        internal static readonly string[] _aliases = new[] { "l" };
+
+        private readonly string commandName;
+
+        private readonly Translation translation;
 
         public string Command { get; }
-        public string[] Aliases { get; }
         public string Description { get; }
+        public string[] Aliases { get; }
+        public bool SanitizeResponse { get; }
+        private static Config Config => Plugin.Singleton.pluginConfig;
     }
 }
