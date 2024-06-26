@@ -82,7 +82,7 @@ namespace GhostSpectator.Commands.ClientConsole.Voicechat
 
         internal const string _command = "enablevoicechat";
 
-        internal const string _description = "Enable listening to selected voicechat(s) as Ghost.";
+        internal const string _description = "Enable listening to selected voicechat(s).";
 
         internal static readonly string[] _aliases = new[] { "evc" };
 
