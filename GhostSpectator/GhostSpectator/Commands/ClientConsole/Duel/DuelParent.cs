@@ -129,7 +129,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "duel";
 
-        internal const string _description = "Challenge another Ghost to a duel by typing their nickname. New duel request will replace old one. Also parent command for Duel.";
+        internal const string _description = "Parent command. Challenge another Ghost to a duel by typing their nickname, whole or part of it. The case is ignored.";
 
         internal static readonly string[] _aliases = Array.Empty<string>();
 
