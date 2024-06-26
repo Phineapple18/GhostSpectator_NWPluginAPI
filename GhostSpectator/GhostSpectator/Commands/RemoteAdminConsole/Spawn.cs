@@ -108,7 +108,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 
         internal const string _command = "spawn";
 
-        internal const string _description = "Spawn selected player(s) as Ghost.";
+        internal const string _description = "Spawn selected player(s) as Ghost. Separate entries with space.";
 
         internal static readonly string[] _aliases = new[] { "s" };
 
