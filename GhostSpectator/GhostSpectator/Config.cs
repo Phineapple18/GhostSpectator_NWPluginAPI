@@ -61,7 +61,7 @@ namespace GhostSpectator
         [Description("Minimum distance between the Ghosts, that will make them hear eachother via RoundSummary channel instead of Proximity channel (if they have enabled listening to Ghosts).")]
         public float HearDistance { get; set; } = 10f;
 
-        [Description("Time, after which the duel request will expire.")]
+        [Description("Time, which the duel request will expire after.")]
         public float DuelRequestTime { get; set; } = 10f;
     }
 }
