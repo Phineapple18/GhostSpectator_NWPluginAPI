@@ -87,7 +87,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "accept";
 
-        internal const string _description = "Accept duel offer from a player. If you have multiple offers, first one will be accepted, unless you provide a player nickname.";
+        internal const string _description = "Accept duel offer from a player. Provide player nickname, whole or part of it, otherwise the first offer will be accepted. The case is ignored.";
 
         internal static readonly string[] _aliases = new[] { "a" };
 
