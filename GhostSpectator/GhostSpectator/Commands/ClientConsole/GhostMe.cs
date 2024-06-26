@@ -79,7 +79,7 @@ namespace GhostSpectator.Commands.ClientConsole
 
         internal const string _command = "ghostme";
 
-        internal const string _description = "Change yourself to Ghost from Spectator or vice versa by typing this command.";
+        internal const string _description = "Change yourself to Ghost from Spectator or vice versa.";
 
         internal static readonly string[] _aliases = new[] { "gme", "me" };
 
