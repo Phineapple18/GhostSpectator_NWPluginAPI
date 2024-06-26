@@ -55,7 +55,7 @@ namespace GhostSpectator.Commands.ClientConsole.Duel
 
         internal const string _command = "list";
 
-        internal const string _description = "Print a list of all players who challenged you to a duel or a list of Ghosts in your closest vicinity.";
+        internal const string _description = "Print a list of all players who challenged you to a duel.";
 
         internal static readonly string[] _aliases = new[] { "l" };
 
