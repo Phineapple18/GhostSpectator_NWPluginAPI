@@ -96,7 +96,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 
         internal const string _command = "despawn";
 
-        internal const string _description = "Despawn selected player(s) from Ghost to Spectator.";
+        internal const string _description = "Despawn selected player(s) from Ghost to Spectator. Separate entries with space.";
 
         internal static readonly string[] _aliases = new[] { "d" };
 
