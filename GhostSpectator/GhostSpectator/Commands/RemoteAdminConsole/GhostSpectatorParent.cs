@@ -52,7 +52,7 @@ namespace GhostSpectator.Commands.RemoteAdminConsole
 
         internal const string _command = "ghostspectator";
 
-        internal const string _description = "Parent command for GhostSpectator. Type empty command for more information regarding subcommands.";
+        internal const string _description = "Parent command. Type empty command for more information regarding subcommands.";
 
         internal static readonly string[] _aliases = new[] { "ghost", "gsp", "gs" };
 
