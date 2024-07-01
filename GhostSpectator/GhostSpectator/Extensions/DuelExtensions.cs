@@ -15,6 +15,8 @@ namespace GhostSpectator.Extensions
         {
             player.GetGhostComponent().DuelPartner = null;
             opponent.GetGhostComponent().DuelPartner = null;
+            player.Health = Config.GhostHealth;
+            opponent.Health = Config.GhostHealth;
             opponent.ReceiveHint(Translation.DuelAbandoned.Replace("%playernick%", player.Nickname), 5);
             Log.Debug($"Duel has been abandoned by player {player.Nickname}.", Config.Debug, PluginName);
         }
